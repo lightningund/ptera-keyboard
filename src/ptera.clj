@@ -70,7 +70,7 @@
 (def mount-width (+ keyswitch-width 3))
 (def mount-height (+ keyswitch-height 3))
 
-(defn half [num] (half num))
+(defn half [num] (/ num 2))
 
 (def single-plate
 	(let [top-wall (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
