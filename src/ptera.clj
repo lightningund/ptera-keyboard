@@ -5,7 +5,6 @@
             [scad-clj.model :refer :all]
             [unicode-math.core :refer :all]))
 
-
 (defn deg2rad [degrees]
   (* (/ degrees 180) pi))
 
@@ -211,7 +210,6 @@
 (defn key-position [column row position]
   (apply-key-geometry (partial map +) rotate-around-x rotate-around-y column row position))
 
-
 (def key-holes
   (apply union
          (for [column columns
@@ -371,7 +369,6 @@
    (thumb-1x-layout (sa-cap 1))
    (thumb-15x-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.5)))))
 
-
 (def thumb
   (union
    (thumb-1x-layout single-plate)
@@ -478,7 +475,6 @@
 (defn left-key-place [row direction shape]
   (translate (left-key-position row direction) shape))
 
-
 (defn wall-locate1 [dx dy] [(* dx wall-thickness) (* dy wall-thickness) -1])
 (defn wall-locate2 [dx dy] [(* dx wall-xy-offset) (* dy wall-xy-offset) wall-z-offset])
 (defn wall-locate3 [dx dy] [(* dx (+ wall-xy-offset wall-thickness)) (* dy (+ wall-xy-offset wall-thickness)) wall-z-offset])
@@ -581,7 +577,6 @@
      (thumb-ml-place (translate (wall-locate3 -0.3 1) web-post-tr))
      (thumb-tl-place thumb-post-tl))
   ))
-
 
 (def rj9-start  (map + [0 -3  0] (key-position 0 0 (map + (wall-locate3 0 1) [0 (/ mount-height  2) 0]))))
 (def rj9-position  [(first rj9-start) (second rj9-start) 11])
@@ -691,7 +686,6 @@
         (key-place column row (translate [0 0 0] (wire-post -1 6)))
         (key-place column row (translate [5 0 0] (wire-post  1 0)))))))
 
-
 (def model-right (difference
                    (union
                     key-holes
@@ -756,7 +750,5 @@
 (spit "things/test.scad"
       (write-scad
          (difference usb-holder usb-holder-hole)))
-
-
 
 (defn -main [dum] 1)  ; dummy to make it easier to batch
