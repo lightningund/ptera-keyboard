@@ -25,6 +25,15 @@
 (def centercol 4) ; controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (/ π 4)) ; or, change this for more precise tenting control
 (def column-style (if (> nrows 5) :orthographic :standard)) ; options include :standard, :orthographic
+; (def column-style :fixed)
+
+; Settings for column-style == :fixed
+; The defaults roughly match Maltron settings
+; Fixed-z overrides the z portion of the column offsets
+(def fixed-angles [(deg2rad 10) (deg2rad 10) 0 0 0 (deg2rad -15) (deg2rad -15)])
+(def fixed-x [-41.5 -22.5 0 20.3 41.4 65.5 89.6]) ; relative to the middle finger
+(def fixed-z [12.1 8.3 0 5 10.7 14.5 17.5])
+(def fixed-tenting (deg2rad 0))
 
 (defn column-offset [column]
 	(cond
@@ -210,13 +219,6 @@
 			(translate-fn [(- (* (- column centercol) column-x-delta)) 0 column-z-delta])
 			(translate-fn (column-offset column))
 		)
-		; Settings for column-style == :fixed
-		; The defaults roughly match Maltron settings
-		; Fixed-z overrides the z portion of the column offsets
-		fixed-angles [(deg2rad 10) (deg2rad 10) 0 0 0 (deg2rad -15) (deg2rad -15)]
-		fixed-x [-41.5 -22.5 0 20.3 41.4 65.5 89.6] ; relative to the middle finger
-		fixed-z [12.1 8.3 0 5 10.7 14.5 17.5]
-		fixed-tenting (deg2rad 0)
 		placed-shape-fixed (->>
 			shape
 			(rotate-y-fn (nth fixed-angles column))
