@@ -366,10 +366,10 @@
 ;;;;;;;;;;;;
 
 (def thumborigin (map + (key-position 1 cornerrow [(half mount-width) (- (half mount-height)) 0]) thumb-offsets))
-; (pr thumborigin)
 
 (defn thumb-tr-place [shape]
-	(->> shape
+	(->>
+		shape
 		(rotate (deg2rad 10) [1 0 0])
 		(rotate (deg2rad -23) [0 1 0])
 		(rotate (deg2rad 10) [0 0 1])
@@ -379,7 +379,8 @@
 )
 
 (defn thumb-tl-place [shape]
-	(->> shape
+	(->>
+		shape
 		(rotate (deg2rad 10) [1 0 0])
 		(rotate (deg2rad -23) [0 1 0])
 		(rotate (deg2rad 10) [0 0 1])
@@ -389,7 +390,8 @@
 )
 
 (defn thumb-mr-place [shape]
-	(->> shape
+	(->>
+		shape
 		(rotate (deg2rad -6) [1 0 0])
 		(rotate (deg2rad -34) [0 1 0])
 		(rotate (deg2rad 48) [0 0 1])
@@ -399,7 +401,8 @@
 )
 
 (defn thumb-ml-place [shape]
-	(->> shape
+	(->>
+		shape
 		(rotate (deg2rad 6) [1 0 0])
 		(rotate (deg2rad -34) [0 1 0])
 		(rotate (deg2rad 40) [0 0 1])
@@ -409,7 +412,8 @@
 )
 
 (defn thumb-br-place [shape]
-	(->> shape
+	(->>
+		shape
 		(rotate (deg2rad -16) [1 0 0])
 		(rotate (deg2rad -33) [0 1 0])
 		(rotate (deg2rad 54) [0 0 1])
@@ -419,7 +423,8 @@
 )
 
 (defn thumb-bl-place [shape]
-	(->> shape
+	(->>
+		shape
 		(rotate (deg2rad -4) [1 0 0])
 		(rotate (deg2rad -35) [0 1 0])
 		(rotate (deg2rad 52) [0 0 1])
@@ -447,10 +452,10 @@
 (def larger-plate
 	(let [
 		plate-height (/ (- sa-double-length mount-height) 3)
-		top-plate (->>
-			(cube mount-width plate-height web-thickness)
-			(translate [0 (half (+ plate-height mount-height)) (- plate-thickness (half web-thickness))])
-		)
+		top-plate
+			(translate [0 (half (+ plate-height mount-height)) (- plate-thickness (half web-thickness))]
+				(cube mount-width plate-height web-thickness)
+			)
 	] (union top-plate (mirror [0 1 0] top-plate)))
 )
 
@@ -727,15 +732,13 @@
 (def usb-holder-size [6.5 10.0 13.6])
 (def usb-holder-thickness 4)
 (def usb-holder
-	(->>
+	(translate [(first usb-holder-position) (second usb-holder-position) (half (+ (last usb-holder-size) usb-holder-thickness))]
 		(cube (+ (first usb-holder-size) usb-holder-thickness) (second usb-holder-size) (+ (last usb-holder-size) usb-holder-thickness))
-		(translate [(first usb-holder-position) (second usb-holder-position) (half (+ (last usb-holder-size) usb-holder-thickness))])
 	)
 )
 (def usb-holder-hole
-	(->>
+	(translate [(first usb-holder-position) (second usb-holder-position) (half (+ (last usb-holder-size) usb-holder-thickness))]
 		(apply cube usb-holder-size)
-		(translate [(first usb-holder-position) (second usb-holder-position) (half (+ (last usb-holder-size) usb-holder-thickness))])
 	)
 )
 
@@ -809,9 +812,8 @@
 					)
 				)
 			)
-	] (->>
+	] (translate [(first position) (second position) (half height)]
 		(screw-insert-shape bottom-radius top-radius height)
-		(translate [(first position) (second position) (half height)])
 	)
 ))
 
