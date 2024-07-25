@@ -310,19 +310,32 @@
 )
 
 (def post-adj (half post-size))
-(def web-post-tr (translate [(- (half mount-width) post-adj) (- (half mount-height) post-adj) 0] web-post))
-(def web-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (half mount-height) post-adj) 0] web-post))
-(def web-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
-(def web-post-br (translate [(- (half mount-width) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
+; Post list order: [tr, tl, bl, br]
+(defn gen-posts [half-width half-height]
+	[
+		(translate [(- half-width post-adj) (- half-height post-adj) 0] web-post)
+		(translate [(- post-adj half-width) (- half-height post-adj) 0] web-post)
+		(translate [(- post-adj half-width) (- post-adj half-height) 0] web-post)
+		(translate [(- half-width post-adj) (- post-adj half-height) 0] web-post)
+	]
+)
+
+(def web-posts
+	(let [
+		half-w (half mount-width)
+		half-h (half mount-height)
+	] (gen-posts half-w half-h))
+)
+(def web-post-tr (get web-posts 0))
+(def web-post-tl (get web-posts 1))
+(def web-post-bl (get web-posts 2))
+(def web-post-br (get web-posts 3))
+(ns-unmap *ns* 'web-posts)
 
 ; Splits the list into groups of 3, with a step of 1
 ; Then applies `hull` to each, to make a full triangle
 ; Then creates the union of all the triangles
-(defn triangle-hulls [& shapes]
-	(union
-		(map hull (partition 3 1 shapes))
-	)
-)
+(defn triangle-hulls [& shapes] (union (map hull (partition 3 1 shapes))))
 
 (def connectors
 	(apply union
@@ -474,10 +487,17 @@
 	)
 )
 
-(def thumb-post-tr (translate [(- (half mount-width) post-adj) (- (/ mount-height 1.15) post-adj) 0] web-post))
-(def thumb-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (/ mount-height 1.15) post-adj) 0] web-post))
-(def thumb-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -1.15) post-adj) 0] web-post))
-(def thumb-post-br (translate [(- (half mount-width) post-adj) (+ (/ mount-height -1.15) post-adj) 0] web-post))
+(def thumb-posts
+	(let [
+		half-w (/ mount-width 2)
+		half-h (/ mount-height 1.15)
+	] (gen-posts half-w half-h))
+)
+(def thumb-post-tr (get thumb-posts 0))
+(def thumb-post-tl (get thumb-posts 1))
+(def thumb-post-bl (get thumb-posts 2))
+(def thumb-post-br (get thumb-posts 3))
+(ns-unmap *ns* 'thumb-posts)
 
 (def thumb-connectors
 	(union
