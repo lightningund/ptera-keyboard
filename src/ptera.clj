@@ -93,16 +93,15 @@
 					)
 				)
 			)
-		plate-half (union top-wall left-wall side-nub)]
-		(union
-			plate-half
-			(mirror [0 1 0]
-				(mirror [1 0 0]
-					plate-half
-				)
+		plate-half (union top-wall left-wall side-nub)
+	] (union
+		plate-half
+		(mirror [0 1 0]
+			(mirror [1 0 0]
+				plate-half
 			)
 		)
-	)
+	))
 )
 
 ;;;;;;;;;;;;;;;;
