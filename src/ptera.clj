@@ -74,29 +74,33 @@
 
 (def single-plate
 	(let [
-		top-wall (->>
-			(cube (+ keyswitch-width 3) 1.5 plate-thickness)
-			(translate [0 (+ 0.75 (half keyswitch-height)) (half plate-thickness)])
-		)
-		left-wall (->>
-			(cube 1.5 (+ keyswitch-height 3) plate-thickness)
-			(translate [(+ 0.75 (half keyswitch-width)) 0 (half plate-thickness)])
-		)
-		side-nub (->>
-			(binding [*fn* 30] (cylinder 1 2.75))
-			(rotate (half π) [1 0 0])
-			(translate [(+ (half keyswitch-width)) 0 1])
-			(hull (->>
-				(cube 1.5 2.75 plate-thickness)
-				(translate [(+ 0.75 (half keyswitch-width)) 0 (half plate-thickness)])
-			))
-		)
+		top-wall
+			(translate [0 (+ 0.75 (half keyswitch-height)) (half plate-thickness)]
+				(cube (+ keyswitch-width 3) 1.5 plate-thickness)
+			)
+		left-wall
+			(translate [(+ 0.75 (half keyswitch-width)) 0 (half plate-thickness)]
+				(cube 1.5 (+ keyswitch-height 3) plate-thickness)
+			)
+		side-nub
+			(hull
+				(translate [(+ 0.75 (half keyswitch-width)) 0 (half plate-thickness)]
+					(cube 1.5 2.75 plate-thickness)
+				)
+				(translate [(+ (half keyswitch-width)) 0 1]
+					(rotate (half π) [1 0 0]
+						(binding [*fn* 30] (cylinder 1 2.75))
+					)
+				)
+			)
 		plate-half (union top-wall left-wall (with-fn 100 side-nub))]
-		(union plate-half (->>
-			plate-half
-			(mirror [1 0 0])
-			(mirror [0 1 0])
-		))
+		(union plate-half
+			(mirror [0 1 0]
+				(mirror [1 0 0]
+					plate-half
+				)
+			)
+		)
 	)
 )
 
