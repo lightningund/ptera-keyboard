@@ -315,9 +315,12 @@
 (def web-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
 (def web-post-br (translate [(- (half mount-width) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
 
+; Splits the list into groups of 3, with a step of 1
+; Then applies `hull` to each, to make a full triangle
+; Then creates the union of all the triangles
 (defn triangle-hulls [& shapes]
-	(apply union
-		(map (partial apply hull) (partition 3 1 shapes))
+	(union
+		(map hull (partition 3 1 shapes))
 	)
 )
 
