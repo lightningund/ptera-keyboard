@@ -10,7 +10,4 @@
 		[unicode-math "0.2.0"]
 		[scad-clj "0.4.0"]
 	]
-	:cljfmt {
-		:indentation? false
-	}
 )
