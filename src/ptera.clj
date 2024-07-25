@@ -70,22 +70,24 @@
 (def mount-width (+ keyswitch-width 3))
 (def mount-height (+ keyswitch-height 3))
 
+(defn half [num] (half num))
+
 (def single-plate
 	(let [top-wall (->> (cube (+ keyswitch-width 3) 1.5 plate-thickness)
 											(translate [0
-																	(+ (/ 1.5 2) (/ keyswitch-height 2))
-																	(/ plate-thickness 2)]))
+																	(+ 0.75 (half keyswitch-height))
+																	(half plate-thickness)]))
 				left-wall (->> (cube 1.5 (+ keyswitch-height 3) plate-thickness)
-											 (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+											 (translate [(+ 0.75 (half keyswitch-width))
 																	 0
-																	 (/ plate-thickness 2)]))
+																	 (half plate-thickness)]))
 				side-nub (->> (binding [*fn* 30] (cylinder 1 2.75))
-											(rotate (/ π 2) [1 0 0])
-											(translate [(+ (/ keyswitch-width 2)) 0 1])
+											(rotate (half π) [1 0 0])
+											(translate [(+ (half keyswitch-width)) 0 1])
 											(hull (->> (cube 1.5 2.75 plate-thickness)
-																 (translate [(+ (/ 1.5 2) (/ keyswitch-width 2))
+																 (translate [(+ 0.75 (half keyswitch-width))
 																						 0
-																						 (/ plate-thickness 2)]))))
+																						 (half plate-thickness)]))))
 				plate-half (union top-wall left-wall (with-fn 100 side-nub))]
 		(union plate-half
 					 (->> plate-half
@@ -98,8 +100,8 @@
 
 (def sa-length 18.25)
 (def sa-double-length 37.5)
-(def sa-cap {1 (let [bl2 (/ 18.5 2)
-										 m (/ 17 2)
+(def sa-cap {1 (let [bl2 (half 18.5)
+										 m (half 17)
 										 key-cap (hull (->> (polygon [[bl2 bl2] [bl2 (- bl2)] [(- bl2) (- bl2)] [(- bl2) bl2]])
 																				(extrude-linear {:height 0.1 :twist 0 :convexity 0})
 																				(translate [0 0 0.05]))
@@ -112,8 +114,8 @@
 								 (->> key-cap
 											(translate [0 0 (+ 5 plate-thickness)])
 											(color [220/255 163/255 163/255 1])))
-						 2 (let [bl2 (/ sa-double-length 2)
-										 bw2 (/ 18.25 2)
+						 2 (let [bl2 (half sa-double-length)
+										 bw2 (half 18.25)
 										 key-cap (hull (->> (polygon [[bw2 bl2] [bw2 (- bl2)] [(- bw2) (- bl2)] [(- bw2) bl2]])
 																				(extrude-linear {:height 0.1 :twist 0 :convexity 0})
 																				(translate [0 0 0.05]))
@@ -123,8 +125,8 @@
 								 (->> key-cap
 											(translate [0 0 (+ 5 plate-thickness)])
 											(color [127/255 159/255 127/255 1])))
-						 1.5 (let [bl2 (/ 18.25 2)
-											 bw2 (/ 28 2)
+						 1.5 (let [bl2 (half 18.25)
+											 bw2 (half 28)
 											 key-cap (hull (->> (polygon [[bw2 bl2] [bw2 (- bl2)] [(- bw2) (- bl2)] [(- bw2) bl2]])
 																					(extrude-linear {:height 0.1 :twist 0 :convexity 0})
 																					(translate [0 0 0.05]))
@@ -144,10 +146,10 @@
 
 (def cap-top-height (+ plate-thickness sa-profile-key-height))
 (def row-radius (+ (/ (/ (+ mount-height extra-height) 2)
-											(Math/sin (/ α 2)))
+											(Math/sin (half α)))
 									 cap-top-height))
 (def column-radius (+ (/ (/ (+ mount-width extra-width) 2)
-												 (Math/sin (/ β 2)))
+												 (Math/sin (half β)))
 											cap-top-height))
 (def column-x-delta (+ -1 (- (* column-radius (Math/sin β)))))
 (def column-base-angle (* β (- centercol 2)))
@@ -228,7 +230,7 @@
 								(key-place column row)))))
 
 ; (pr (rotate-around-y π [10 0 1]))
-; (pr (key-position 1 cornerrow [(/ mount-width 2) (- (/ mount-height 2)) 0]))
+; (pr (key-position 1 cornerrow [(half mount-width) (- (half mount-height)) 0]))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; Web Connectors ;;
@@ -240,11 +242,11 @@
 									 (translate [0 0 (+ (/ web-thickness -2)
 																			plate-thickness)])))
 
-(def post-adj (/ post-size 2))
-(def web-post-tr (translate [(- (/ mount-width 2) post-adj) (- (/ mount-height 2) post-adj) 0] web-post))
-(def web-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (/ mount-height 2) post-adj) 0] web-post))
+(def post-adj (half post-size))
+(def web-post-tr (translate [(- (half mount-width) post-adj) (- (half mount-height) post-adj) 0] web-post))
+(def web-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (half mount-height) post-adj) 0] web-post))
 (def web-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
-(def web-post-br (translate [(- (/ mount-width 2) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
+(def web-post-br (translate [(- (half mount-width) post-adj) (+ (/ mount-height -2) post-adj) 0] web-post))
 
 (defn triangle-hulls [& shapes]
 	(apply union
@@ -286,7 +288,7 @@
 ;;;;;;;;;;;;
 
 (def thumborigin
-	(map + (key-position 1 cornerrow [(/ mount-width 2) (- (/ mount-height 2)) 0])
+	(map + (key-position 1 cornerrow [(half mount-width) (- (half mount-height)) 0])
 				 thumb-offsets))
 ; (pr thumborigin)
 
@@ -359,14 +361,14 @@
 	(let [plate-height (/ (- sa-double-length mount-height) 3)
 				top-plate (->> (cube mount-width plate-height web-thickness)
 											 (translate [0 (/ (+ plate-height mount-height) 2)
-																	 (- plate-thickness (/ web-thickness 2))]))
+																	 (- plate-thickness (half web-thickness))]))
 				]
 		(union top-plate (mirror [0 1 0] top-plate))))
 
 (def thumbcaps
 	(union
 	 (thumb-1x-layout (sa-cap 1))
-	 (thumb-15x-layout (rotate (/ π 2) [0 0 1] (sa-cap 1.5)))))
+	 (thumb-15x-layout (rotate (half π) [0 0 1] (sa-cap 1.5)))))
 
 (def thumb
 	(union
@@ -375,10 +377,10 @@
 	 (thumb-15x-layout larger-plate)
 	 ))
 
-(def thumb-post-tr (translate [(- (/ mount-width 2) post-adj)  (- (/ mount-height  1.15) post-adj) 0] web-post))
+(def thumb-post-tr (translate [(- (half mount-width) post-adj)  (- (/ mount-height  1.15) post-adj) 0] web-post))
 (def thumb-post-tl (translate [(+ (/ mount-width -2) post-adj) (- (/ mount-height  1.15) post-adj) 0] web-post))
 (def thumb-post-bl (translate [(+ (/ mount-width -2) post-adj) (+ (/ mount-height -1.15) post-adj) 0] web-post))
-(def thumb-post-br (translate [(- (/ mount-width 2) post-adj)  (+ (/ mount-height -1.15) post-adj) 0] web-post))
+(def thumb-post-br (translate [(- (half mount-width) post-adj)  (+ (/ mount-height -1.15) post-adj) 0] web-post))
 
 (def thumb-connectors
 	(union
@@ -460,7 +462,7 @@
 (defn bottom [height p]
 	(->> (project p)
 			 (extrude-linear {:height height :twist 0 :convexity 0})
-			 (translate [0 0 (- (/ height 2) 10)])))
+			 (translate [0 0 (- (half height) 10)])))
 
 (defn bottom-hull [& p]
 	(hull p (bottom 0.001 p)))
@@ -586,7 +588,7 @@
 															(union (translate [0 2 0] (cube 10.78  9 18.38))
 																		 (translate [0 0 5] (cube 10.78 13  5))))))
 
-(def usb-holder-position (key-position 1 0 (map + (wall-locate2 0 1) [0 (/ mount-height 2) 0])))
+(def usb-holder-position (key-position 1 0 (map + (wall-locate2 0 1) [0 (half mount-height) 0])))
 (def usb-holder-size [6.5 10.0 13.6])
 (def usb-holder-thickness 4)
 (def usb-holder
@@ -609,7 +611,7 @@
 (def teensy-bot-xy (key-position 0 (+ centerrow 1) (wall-locate3 -1 0)))
 (def teensy-holder-length (- (second teensy-top-xy) (second teensy-bot-xy)))
 (def teensy-holder-offset (/ teensy-holder-length -2))
-(def teensy-holder-top-offset (- (/ teensy-holder-top-length 2) teensy-holder-length))
+(def teensy-holder-top-offset (- (half teensy-holder-top-length) teensy-holder-length))
 
 (def teensy-holder
 		(->>
@@ -617,13 +619,13 @@
 					(->> (cube 3 teensy-holder-length (+ 6 teensy-width))
 							 (translate [1.5 teensy-holder-offset 0]))
 					(->> (cube teensy-pcb-thickness teensy-holder-length 3)
-							 (translate [(+ (/ teensy-pcb-thickness 2) 3) teensy-holder-offset (- -1.5 (/ teensy-width 2))]))
+							 (translate [(+ (half teensy-pcb-thickness) 3) teensy-holder-offset (- -1.5 (half teensy-width))]))
 					(->> (cube 4 teensy-holder-length 4)
-							 (translate [(+ teensy-pcb-thickness 5) teensy-holder-offset (-  -1 (/ teensy-width 2))]))
+							 (translate [(+ teensy-pcb-thickness 5) teensy-holder-offset (-  -1 (half teensy-width))]))
 					(->> (cube teensy-pcb-thickness teensy-holder-top-length 3)
-							 (translate [(+ (/ teensy-pcb-thickness 2) 3) teensy-holder-top-offset (+ 1.5 (/ teensy-width 2))]))
+							 (translate [(+ (half teensy-pcb-thickness) 3) teensy-holder-top-offset (+ 1.5 (half teensy-width))]))
 					(->> (cube 4 teensy-holder-top-length 4)
-							 (translate [(+ teensy-pcb-thickness 5) teensy-holder-top-offset (+ 1 (/ teensy-width 2))])))
+							 (translate [(+ teensy-pcb-thickness 5) teensy-holder-top-offset (+ 1 (half teensy-width))])))
 				(translate [(- teensy-holder-width) 0 0])
 				(translate [-1.4 0 0])
 				(translate [(first teensy-top-xy)
@@ -633,20 +635,20 @@
 
 (defn screw-insert-shape [bottom-radius top-radius height]
 	 (union (cylinder [bottom-radius top-radius] height)
-					(translate [0 0 (/ height 2)] (sphere top-radius))))
+					(translate [0 0 (half height)] (sphere top-radius))))
 
 (defn screw-insert [column row bottom-radius top-radius height]
 	(let [shift-right   (= column lastcol)
 				shift-left    (= column 0)
 				shift-up      (and (not (or shift-right shift-left)) (= row 0))
 				shift-down    (and (not (or shift-right shift-left)) (>= row lastrow))
-				position      (if shift-up     (key-position column row (map + (wall-locate2  0  1) [0 (/ mount-height 2) 0]))
-											 (if shift-down  (key-position column row (map - (wall-locate2  0 -1) [0 (/ mount-height 2) 0]))
+				position      (if shift-up     (key-position column row (map + (wall-locate2  0  1) [0 (half mount-height) 0]))
+											 (if shift-down  (key-position column row (map - (wall-locate2  0 -1) [0 (half mount-height) 0]))
 												(if shift-left (map + (left-key-position row 0) (wall-locate3 -1 0))
-																			 (key-position column row (map + (wall-locate2  1  0) [(/ mount-width 2) 0 0])))))
+																			 (key-position column row (map + (wall-locate2  1  0) [(half mount-width) 0 0])))))
 				]
 		(->> (screw-insert-shape bottom-radius top-radius height)
-				 (translate [(first position) (second position) (/ height 2)])
+				 (translate [(first position) (second position) (half height)])
 		)))
 
 (defn screw-insert-all-shapes [bottom-radius top-radius height]
@@ -657,8 +659,8 @@
 				 (screw-insert lastcol 1   bottom-radius top-radius height)
 				 ))
 (def screw-insert-height 3.8)
-(def screw-insert-bottom-radius (/ 5.31 2))
-(def screw-insert-top-radius (/ 5.1 2))
+(def screw-insert-bottom-radius (half 5.31))
+(def screw-insert-top-radius (half 5.1))
 (def screw-insert-holes  (screw-insert-all-shapes screw-insert-bottom-radius screw-insert-top-radius screw-insert-height))
 (def screw-insert-outers (screw-insert-all-shapes (+ screw-insert-bottom-radius 1.6) (+ screw-insert-top-radius 1.6) (+ screw-insert-height 1.5)))
 (def screw-insert-screw-holes  (screw-insert-all-shapes 1.7 1.7 350))
