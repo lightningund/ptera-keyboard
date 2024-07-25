@@ -89,12 +89,13 @@
 				)
 				(translate [(+ (half keyswitch-width)) 0 1]
 					(rotate (half π) [1 0 0]
-						(binding [*fn* 30] (cylinder 1 2.75))
+						(with-fn 100 (cylinder 1 2.75))
 					)
 				)
 			)
-		plate-half (union top-wall left-wall (with-fn 100 side-nub))]
-		(union plate-half
+		plate-half (union top-wall left-wall side-nub)]
+		(union
+			plate-half
 			(mirror [0 1 0]
 				(mirror [1 0 0]
 					plate-half
