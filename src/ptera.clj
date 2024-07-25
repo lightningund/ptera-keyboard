@@ -19,9 +19,7 @@
 (def centerrow (- nrows 3)) ; controls front-back tilt
 (def centercol 4) ; controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (/ π 4)) ; or, change this for more precise tenting control
-(def column-style
-	(if (> nrows 5) :orthographic :standard)) ; options include :standard, :orthographic, and :fixed
-; (def column-style :fixed)
+(def column-style (if (> nrows 5) :orthographic :standard)) ; options include :standard, :orthographic
 
 (defn column-offset [column] (cond
 	(= column 2) [0 2.82 -4.5]
@@ -61,7 +59,7 @@
 ;; Switch Hole ;;
 ;;;;;;;;;;;;;;;;;
 
-(def keyswitch-height 14.4) ;; Was 14.1, then 14.25
+(def keyswitch-height 14.4) ; Was 14.1, then 14.25
 (def keyswitch-width 14.4)
 
 (def sa-profile-key-height 12.7)
@@ -130,8 +128,10 @@
 					(translate [0 0 12])
 				)
 			)
-		] (color [220/255 163/255 163/255 1]
-			(translate [0 0 (+ 5 plate-thickness)] key-cap)
+		] (->>
+			key-cap
+			(translate [0 0 (+ 5 plate-thickness)])
+			(color [220/255 163/255 163/255 1])
 		)
 	)
 	1.5 (let [
@@ -149,7 +149,8 @@
 					(translate [0 0 12])
 				)
 			)
-		] (->> key-cap
+		] (->>
+			key-cap
 			(translate [0 0 (+ 5 plate-thickness)])
 			(color [240/255 223/255 175/255 1])
 		)
@@ -169,7 +170,8 @@
 					(translate [0 0 12])
 				)
 			)
-		] (->> key-cap
+		] (->>
+			key-cap
 			(translate [0 0 (+ 5 plate-thickness)])
 			(color [127/255 159/255 127/255 1])
 		)
@@ -193,7 +195,8 @@
 	(let [
 		column-angle (* β (- centercol column))
 		column-z-delta (* column-radius (- 1 (Math/cos column-angle)))
-		placed-shape (->> shape
+		placed-shape (->>
+			shape
 			(translate-fn [0 0 (- row-radius)])
 			(rotate-x-fn (* α (- centerrow row)))
 			(translate-fn [0 0 row-radius])
@@ -202,7 +205,8 @@
 			(translate-fn [0 0 column-radius])
 			(translate-fn (column-offset column))
 		)
-		placed-shape-ortho (->> shape
+		placed-shape-ortho (->>
+			shape
 			(translate-fn [0 0 (- row-radius)])
 			(rotate-x-fn (* α (- centerrow row)))
 			(translate-fn [0 0 row-radius])
@@ -210,7 +214,8 @@
 			(translate-fn [(- (* (- column centercol) column-x-delta)) 0 column-z-delta])
 			(translate-fn (column-offset column))
 		)
-		placed-shape-fixed (->> shape
+		placed-shape-fixed (->>
+			shape
 			(rotate-y-fn (nth fixed-angles column))
 			(translate-fn [(nth fixed-x column) 0 (nth fixed-z column)])
 			(translate-fn [0 0 (- (+ row-radius (nth fixed-z column)))])
@@ -230,6 +235,7 @@
 	))
 )
 
+; Puts the shape at the correct position and rotation for the specified key
 (defn key-place [column row shape]
 	(apply-key-geometry
 		translate
@@ -257,6 +263,7 @@
 	] position)
 )
 
+; Sets(?) position to the position of the specified key
 (defn key-position [column row position]
 	(apply-key-geometry
 		(partial map +)
@@ -274,9 +281,7 @@
 			column columns
 			row rows
 			:when (or (.contains [2 3] column) (not= row lastrow))
-		] (->> single-plate
-			(key-place column row)
-		))
+		] (key-place column row single-plate))
 	)
 )
 
@@ -286,8 +291,8 @@
 			column columns
 			row rows
 			:when (or (.contains [2 3] column) (not= row lastrow))
-		] (->> (sa-cap (if (= column 5) 1 1))
-			(key-place column row)
+		] (key-place column row
+			(sa-cap (if (= column 5) 1 1))
 		))
 	)
 )
@@ -298,9 +303,11 @@
 
 (def web-thickness 3.5)
 (def post-size 0.1)
-(def web-post (->> (cube post-size post-size web-thickness)
-	(translate [0 0 (+ (/ web-thickness -2) plate-thickness)])
-))
+(def web-post
+	(translate [0 0 (+ (/ web-thickness -2) plate-thickness)]
+		(cube post-size post-size web-thickness)
+	)
+)
 
 (def post-adj (half post-size))
 (def web-post-tr (translate [(- (half mount-width) post-adj) (- (half mount-height) post-adj) 0] web-post))
@@ -856,24 +863,26 @@
 	)
 )
 
-(def model-right (difference
-	(union
-		key-holes
-		connectors
-		thumb
-		thumb-connectors
-		wire-posts
-		(difference
-			(union
-				case-walls
-				screw-insert-outers
-				teensy-holder
+(def model-right
+	(difference
+		(union
+			key-holes
+			connectors
+			thumb
+			thumb-connectors
+			wire-posts
+			(difference
+				(union
+					case-walls
+					screw-insert-outers
+					teensy-holder
+				)
+				screw-insert-holes
 			)
-			screw-insert-holes
 		)
+		(translate [0 0 -20] (cube 350 350 40))
 	)
-	(translate [0 0 -20] (cube 350 350 40))
-))
+)
 
 (spit "things/right.scad" (write-scad model-right))
 
