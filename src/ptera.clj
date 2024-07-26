@@ -232,6 +232,10 @@
 	] (block col row)))
 )
 
+;;;;;;;;;;;;;;;
+;; Main Keys ;;
+;;;;;;;;;;;;;;;
+
 (def key-holes
 	(union
 		(all-keys-for #(key-place %1 %2 single-plate))
@@ -244,9 +248,31 @@
 	)
 )
 
-;;;;;;;;;;;;;;;;;;;;
-;; Web Connectors ;;
-;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;
+;; Thumb Keys ;;
+;;;;;;;;;;;;;;;;
+
+(defn thumb-col [row shape]
+	(->>
+		shape
+		(translate [-11 0 8])
+		(rotate (deg2rad -60) [0 1 0])
+		(key-place 0 row)
+		(color [1 0 0 1])
+	)
+)
+
+(def thumb
+	(union
+		(for [y (range 0 nrows)]
+			(thumb-col y single-plate)
+		)
+	)
+)
+
+;;;;;;;;;;;;;;;;;;;;;
+;; Main Connectors ;;
+;;;;;;;;;;;;;;;;;;;;;
 
 (def post-size 0.1)
 (def web-post
@@ -318,6 +344,10 @@
 	)
 )
 
+;;;;;;;;;;;;;;;;;;;;;;
+;; Thumb Connectors ;;
+;;;;;;;;;;;;;;;;;;;;;;
+
 ;;;;;;;;;;
 ;; Case ;;
 ;;;;;;;;;;
@@ -326,7 +356,7 @@
 	(->>
 		(project p)
 		(extrude-linear {:height height :twist 0 :convexity 0})
-		(translate [0 0 (- (half height) 10)])
+		;; (translate [0 0 (- (half height) 10)])
 	)
 )
 
@@ -439,10 +469,11 @@
 	(difference
 		(union
 			key-holes
+			thumb
 			connectors
 			case-walls
 		)
-		(translate [0 0 -20] (cube 350 350 40))
+		;; (translate [0 0 -20] (cube 350 350 40))
 	)
 )
 
