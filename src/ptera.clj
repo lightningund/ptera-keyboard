@@ -214,25 +214,39 @@
 	)
 )
 
-(def key-holes
-	(apply union
-		(for [
-			column columns
-			row rows
-			:when (or (.contains [2 3] column) (not= row lastrow))
-		] (key-place column row single-plate))
+(defn valid-key [col row]
+	(and
+		(>= col 0)
+		(>= row 0)
+		(< col ncols)
+		(< row nrows)
+		(not (and (.contains [4 5] col) (= row lastrow)))
 	)
+)
+
+(defn all-keys-for
+	([block] (for [
+		col columns
+		row rows
+		:when (valid-key col row)
+	] (block col row)))
+	([condition block] (for [
+		col columns
+		row rows
+		:when (valid-key col row)
+		:when (condition col row)
+	] (block col row)))
+)
+
+(def key-holes
+	(union
+		(all-keys-for #(key-place %1 %2 single-plate))
+    )
 )
 
 (def caps
 	(apply union
-		(for [
-			column columns
-			row rows
-			:when (or (.contains [2 3] column) (not= row lastrow))
-		] (key-place column row
-			(sa-cap 1)
-		))
+		(all-keys-for #(key-place %1 %2 (sa-cap 1)))
 	)
 )
 
@@ -276,37 +290,35 @@
 (defn triangle-hulls [& shapes] (union (map hull (partition 3 1 shapes))))
 
 (def connectors
-	(apply union
-		(concat
-			;; Row connections
-			(for [
-				column (range 0 (dec ncols))
-				row (range 0 lastrow)
-			] (triangle-hulls
-				(key-place (inc column) row web-post-tl)
-				(key-place column row web-post-tr)
-				(key-place (inc column) row web-post-bl)
-				(key-place column row web-post-br)
+	(union
+		;; Row connections
+		(all-keys-for
+			(fn [col row] (valid-key (inc col) row))
+			(fn [col row] (hull
+				(key-place (inc col) row web-post-tl)
+				(key-place col row web-post-tr)
+				(key-place (inc col) row web-post-bl)
+				(key-place col row web-post-br)
 			))
-			;; Column connections
-			(for [
-				column columns
-				row (range 0 cornerrow)
-			] (triangle-hulls
-				(key-place column row web-post-bl)
-				(key-place column row web-post-br)
-				(key-place column (inc row) web-post-tl)
-				(key-place column (inc row) web-post-tr)
+		)
+		;; Column connections
+		(all-keys-for
+			(fn [col row] (valid-key col (inc row)))
+			(fn [col row] (hull
+				(key-place col row web-post-bl)
+				(key-place col row web-post-br)
+				(key-place col (inc row) web-post-tl)
+				(key-place col (inc row) web-post-tr)
 			))
-			;; Diagonal connections
-			(for [
-				column (range 0 (dec ncols))
-				row (range 0 cornerrow)
-			] (triangle-hulls
-				(key-place column row web-post-br)
-				(key-place column (inc row) web-post-tr)
-				(key-place (inc column) row web-post-bl)
-				(key-place (inc column) (inc row) web-post-tl)
+		)
+		;; Diagonal connections
+		(all-keys-for
+			(fn [col row] (valid-key (inc col) (inc row)))
+			(fn [col row] (hull
+				(key-place col row web-post-br)
+				(key-place col (inc row) web-post-tr)
+				(key-place (inc col) row web-post-bl)
+				(key-place (inc col) (inc row) web-post-tl)
 			))
 		)
 	)
@@ -679,9 +691,9 @@
 		(union
 			key-holes
 			connectors
-			thumb
-			thumb-connectors
-			case-walls
+			;; thumb
+			;; thumb-connectors
+			;; case-walls
 		)
 		(translate [0 0 -20] (cube 350 350 40))
 	)
