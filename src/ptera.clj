@@ -325,29 +325,7 @@
 ;; Thumbs ;;
 ;;;;;;;;;;;;
 
-(def thumborigin (map + (key-position 1 cornerrow [(half mount-width) (- (half mount-height)) 0]) thumb-offsets))
-
-(defn thumb-tr-place [shape]
-	(->>
-		shape
-		(rotate (deg2rad 10) [1 0 0])
-		(rotate (deg2rad -23) [0 1 0])
-		(rotate (deg2rad 10) [0 0 1])
-		(translate thumborigin)
-		(translate [-12 -16 3])
-	)
-)
-
-(defn thumb-tl-place [shape]
-	(->>
-		shape
-		(rotate (deg2rad 10) [1 0 0])
-		(rotate (deg2rad -23) [0 1 0])
-		(rotate (deg2rad 10) [0 0 1])
-		(translate thumborigin)
-		(translate [-32 -15 -2])
-	)
-)
+(def thumborigin (key-position 0 lastrow [(half mount-width) (- (half mount-height)) 0]))
 
 (defn thumb-mr-place [shape]
 	(->>
@@ -402,58 +380,26 @@
 	)
 )
 
-(defn thumb-15x-layout [shape]
-	(union
-		(thumb-tr-place shape)
-		(thumb-tl-place shape)
-	)
-)
-
-(def larger-plate
-	(let [
-		plate-height (/ (- sa-double-length mount-height) 3)
-		top-plate
-			(translate [0 (half (+ plate-height mount-height)) (half plate-thickness)]
-				(cube mount-width plate-height plate-thickness)
-			)
-	] (union top-plate (mirror [0 1 0] top-plate)))
-)
-
 (def thumbcaps
 	(union
 		(thumb-1x-layout (sa-cap 1))
-		(thumb-15x-layout (rotate (half pi) [0 0 1] (sa-cap 1.5)))
 	)
 )
 
 (def thumb
 	(union
 		(thumb-1x-layout single-plate)
-		(thumb-15x-layout single-plate)
-		(thumb-15x-layout larger-plate)
 	)
 )
 
-(def thumb-posts
-	(let [
-		half-w (/ mount-width 2)
-		half-h (/ mount-height 1.15)
-	] (gen-posts half-w half-h))
-)
-(def thumb-post-tr (get thumb-posts 0))
-(def thumb-post-tl (get thumb-posts 1))
-(def thumb-post-bl (get thumb-posts 2))
-(def thumb-post-br (get thumb-posts 3))
-(ns-unmap *ns* 'thumb-posts)
-
 (def thumb-connectors
 	(union
-		(triangle-hulls ; top two
-			(thumb-tl-place thumb-post-tr)
-			(thumb-tl-place thumb-post-br)
-			(thumb-tr-place thumb-post-tl)
-			(thumb-tr-place thumb-post-bl)
-		)
+		;; (triangle-hulls ; top two
+		;; 	(thumb-tl-place thumb-post-tr)
+		;; 	(thumb-tl-place thumb-post-br)
+		;; 	(thumb-tr-place thumb-post-tl)
+		;; 	(thumb-tr-place thumb-post-bl)
+		;; )
 		(triangle-hulls ; bottom two on the right
 			(thumb-br-place web-post-tr)
 			(thumb-br-place web-post-br)
@@ -476,40 +422,40 @@
 			(thumb-mr-place web-post-tr)
 			(thumb-ml-place web-post-br)
 		)
-		(triangle-hulls ; top two to the middle two, starting on the left
-			(thumb-tl-place thumb-post-tl)
-			(thumb-ml-place web-post-tr)
-			(thumb-tl-place thumb-post-bl)
-			(thumb-ml-place web-post-br)
-			(thumb-tl-place thumb-post-br)
-			(thumb-mr-place web-post-tr)
-			(thumb-tr-place thumb-post-bl)
-			(thumb-mr-place web-post-br)
-			(thumb-tr-place thumb-post-br)
-		)
-		(triangle-hulls ; top two to the main keyboard, starting on the left
-			(thumb-tl-place thumb-post-tl)
-			(key-place 0 cornerrow web-post-bl)
-			(thumb-tl-place thumb-post-tr)
-			(key-place 0 cornerrow web-post-br)
-			(thumb-tr-place thumb-post-tl)
-			(key-place 1 cornerrow web-post-bl)
-			(thumb-tr-place thumb-post-tr)
-			(key-place 1 cornerrow web-post-br)
-			(key-place 2 lastrow web-post-tl)
-			(key-place 2 lastrow web-post-bl)
-			(thumb-tr-place thumb-post-tr)
-			(key-place 2 lastrow web-post-bl)
-			(thumb-tr-place thumb-post-br)
-			(key-place 2 lastrow web-post-br)
-			(key-place 3 lastrow web-post-bl)
-			(key-place 2 lastrow web-post-tr)
-			(key-place 3 lastrow web-post-tl)
-			(key-place 3 cornerrow web-post-bl)
-			(key-place 3 lastrow web-post-tr)
-			(key-place 3 cornerrow web-post-br)
-			(key-place 4 cornerrow web-post-bl)
-		)
+		;; (triangle-hulls ; top two to the middle two, starting on the left
+		;; 	(thumb-tl-place web-post-tl)
+		;; 	(thumb-ml-place web-post-tr)
+		;; 	(thumb-tl-place web-post-bl)
+		;; 	(thumb-ml-place web-post-br)
+		;; 	(thumb-tl-place web-post-br)
+		;; 	(thumb-mr-place web-post-tr)
+		;; 	(thumb-tr-place web-post-bl)
+		;; 	(thumb-mr-place web-post-br)
+		;; 	(thumb-tr-place web-post-br)
+		;; )
+		;; (triangle-hulls ; top two to the main keyboard, starting on the left
+		;; 	(thumb-tl-place web-post-tl)
+		;; 	(key-place 0 cornerrow web-post-bl)
+		;; 	(thumb-tl-place web-post-tr)
+		;; 	(key-place 0 cornerrow web-post-br)
+		;; 	(thumb-tr-place web-post-tl)
+		;; 	(key-place 1 cornerrow web-post-bl)
+		;; 	(thumb-tr-place web-post-tr)
+		;; 	(key-place 1 cornerrow web-post-br)
+		;; 	(key-place 2 lastrow web-post-tl)
+		;; 	(key-place 2 lastrow web-post-bl)
+		;; 	(thumb-tr-place web-post-tr)
+		;; 	(key-place 2 lastrow web-post-bl)
+		;; 	(thumb-tr-place web-post-br)
+		;; 	(key-place 2 lastrow web-post-br)
+		;; 	(key-place 3 lastrow web-post-bl)
+		;; 	(key-place 2 lastrow web-post-tr)
+		;; 	(key-place 3 lastrow web-post-tl)
+		;; 	(key-place 3 cornerrow web-post-bl)
+		;; 	(key-place 3 lastrow web-post-tr)
+		;; 	(key-place 3 cornerrow web-post-br)
+		;; 	(key-place 4 cornerrow web-post-bl)
+		;; )
 		(triangle-hulls
 			(key-place 1 cornerrow web-post-br)
 			(key-place 2 lastrow web-post-tl)
@@ -630,7 +576,7 @@
 		(for [x (range 4 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl x cornerrow 0 -1 web-post-br))
 		(for [x (range 5 ncols)] (key-wall-brace x cornerrow 0 -1 web-post-bl (dec x) cornerrow 0 -1 web-post-br))
 		; thumb walls
-		(wall-brace thumb-mr-place 0 -1 web-post-br thumb-tr-place 0 -1 thumb-post-br)
+		;; (wall-brace thumb-mr-place 0 -1 web-post-br thumb-tr-place 0 -1 web-post-br)
 		(wall-brace thumb-mr-place 0 -1 web-post-br thumb-mr-place 0 -1 web-post-bl)
 		(wall-brace thumb-br-place 0 -1 web-post-br thumb-br-place 0 -1 web-post-bl)
 		(wall-brace thumb-ml-place -0.3 1 web-post-tr thumb-ml-place 0 1 web-post-tl)
@@ -644,7 +590,7 @@
 		(wall-brace thumb-mr-place 0 -1 web-post-bl thumb-br-place 0 -1 web-post-br)
 		(wall-brace thumb-ml-place 0 1 web-post-tl thumb-bl-place 0 1 web-post-tr)
 		(wall-brace thumb-bl-place -1 0 web-post-bl thumb-br-place -1 0 web-post-tl)
-		(wall-brace thumb-tr-place 0 -1 thumb-post-br (partial key-place 3 lastrow) 0 -1 web-post-bl)
+		;; (wall-brace thumb-tr-place 0 -1 web-post-br (partial key-place 3 lastrow) 0 -1 web-post-bl)
 		; clunky bit on the top left thumb connection (normal connectors don't work well)
 		(bottom-hull
 			(left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
@@ -657,28 +603,28 @@
 			(left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
 			(thumb-ml-place (translate (wall-locate2 -0.3 1) web-post-tr))
 			(thumb-ml-place (translate (wall-locate3 -0.3 1) web-post-tr))
-			(thumb-tl-place thumb-post-tl)
+			;; (thumb-tl-place web-post-tl)
 		)
 		(hull
 			(left-key-place cornerrow -1 web-post)
 			(left-key-place cornerrow -1 (translate (wall-locate1 -1 0) web-post))
 			(left-key-place cornerrow -1 (translate (wall-locate2 -1 0) web-post))
 			(left-key-place cornerrow -1 (translate (wall-locate3 -1 0) web-post))
-			(thumb-tl-place thumb-post-tl)
+			;; (thumb-tl-place web-post-tl)
 		)
 		(hull
 			(left-key-place cornerrow -1 web-post)
 			(left-key-place cornerrow -1 (translate (wall-locate1 -1 0) web-post))
 			(key-place 0 cornerrow web-post-bl)
 			(key-place 0 cornerrow (translate (wall-locate1 -1 0) web-post-bl))
-			(thumb-tl-place thumb-post-tl)
+			;; (thumb-tl-place web-post-tl)
 		)
 		(hull
 			(thumb-ml-place web-post-tr)
 			(thumb-ml-place (translate (wall-locate1 -0.3 1) web-post-tr))
 			(thumb-ml-place (translate (wall-locate2 -0.3 1) web-post-tr))
 			(thumb-ml-place (translate (wall-locate3 -0.3 1) web-post-tr))
-			(thumb-tl-place thumb-post-tl)
+			;; (thumb-tl-place web-post-tl)
 		)
 	)
 )
