@@ -598,16 +598,19 @@
 )
 
 (defn bottom-hull [& p]
-	(hull p (bottom 0.001 p)))
+	(hull p (bottom 0.001 p))
+)
 
 (def left-wall-x-offset 10)
 (def left-wall-z-offset 3)
 
 (defn left-key-position [row direction]
-	(map - (key-position 0 row [(* mount-width -0.5) (* direction mount-height 0.5) 0]) [left-wall-x-offset 0 left-wall-z-offset]))
+	(map - (key-position 0 row [(* mount-width -0.5) (* direction mount-height 0.5) 0]) [left-wall-x-offset 0 left-wall-z-offset])
+)
 
 (defn left-key-place [row direction shape]
-	(translate (left-key-position row direction) shape))
+	(translate (left-key-position row direction) shape)
+)
 
 (defn wall-locate1 [dx dy] [(* dx wall-thickness) (* dy wall-thickness) -1])
 (defn wall-locate2 [dx dy] [(* dx wall-xy-offset) (* dy wall-xy-offset) wall-z-offset])
@@ -646,7 +649,7 @@
 		; back wall
 		(for [x (range 0 ncols)] (key-wall-brace x 0 0 1 web-post-tl x 0 0 1 web-post-tr))
 		(for [x (range 1 ncols)] (key-wall-brace x 0 0 1 web-post-tl (dec x) 0 0 1 web-post-tr))
-		(key-wall-brace lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr)
+		;; (key-wall-brace lastcol 0 0 1 web-post-tr lastcol 0 1 0 web-post-tr)
 		; right wall
 		(for [y (range 0 lastrow)] (key-wall-brace lastcol y 1 0 web-post-tr lastcol y 1 0 web-post-br))
 		(for [y (range 1 lastrow)] (key-wall-brace lastcol (dec y) 1 0 web-post-br lastcol y 1 0 web-post-tr))
