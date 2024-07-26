@@ -241,7 +241,7 @@
 (def key-holes
 	(union
 		(all-keys-for #(key-place %1 %2 single-plate))
-    )
+	)
 )
 
 (def caps
@@ -691,9 +691,9 @@
 		(union
 			key-holes
 			connectors
-			;; thumb
-			;; thumb-connectors
-			;; case-walls
+			thumb
+			thumb-connectors
+			case-walls
 		)
 		(translate [0 0 -20] (cube 350 350 40))
 	)
