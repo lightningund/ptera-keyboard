@@ -151,60 +151,21 @@
 (def columns (range 0 ncols))
 (def rows (range 0 nrows))
 
-(defn apply-key-geometry [translate-fn rotate-x-fn rotate-y-fn column row shape]
+; Puts the shape at the correct position and rotation for the specified key
+(defn key-place [column row shape]
 	(let [
 		cap-top-height (+ plate-thickness sa-profile-key-height)
 		row-radius (+ (/ (half (+ mount-height extra-height)) (Math/sin (half col-curve))) cap-top-height)
 	] (->>
 		shape
-		(translate-fn [0 0 (- row-radius)])
-		(rotate-x-fn (* col-curve (- centerrow row)))
-		(translate-fn [0 0 row-radius])
-		(translate-fn [(* column (+ mount-width extra-width)) 0 0])
-		(translate-fn (column-offset column))
-		(rotate-y-fn tenting-angle)
-		(translate-fn [0 0 keyboard-z-offset])
+		(translate [0 0 (- row-radius)])
+		(rotate (* col-curve (- centerrow row)) [1 0 0])
+		(translate [0 0 row-radius])
+		(translate [(* column (+ mount-width extra-width)) 0 0])
+		(translate (column-offset column))
+		(rotate tenting-angle [0 1 0])
+		(translate [0 0 keyboard-z-offset])
 	))
-)
-
-; Puts the shape at the correct position and rotation for the specified key
-(defn key-place [column row shape]
-	(apply-key-geometry
-		translate
-		(fn [angle obj] (rotate angle [1 0 0] obj))
-		(fn [angle obj] (rotate angle [0 1 0] obj))
-		column
-		row
-		shape
-	)
-)
-
-(defn rotate-around-x [angle position]
-	(mmul [
-		[1 0 0]
-		[0 (Math/cos angle) (- (Math/sin angle))]
-		[0 (Math/sin angle) (Math/cos angle)]
-	] position)
-)
-
-(defn rotate-around-y [angle position]
-	(mmul [
-		[(Math/cos angle) 0 (Math/sin angle)]
-		[0 1 0]
-		[(- (Math/sin angle)) 0 (Math/cos angle)]
-	] position)
-)
-
-; Sets(?) position to the position of the specified key
-(defn key-position [column row position]
-	(apply-key-geometry
-		(partial map +)
-		rotate-around-x
-		rotate-around-y
-		column
-		row
-		position
-	)
 )
 
 (defn valid-key [col row]
