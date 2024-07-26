@@ -282,11 +282,10 @@
 ;; Web Connectors ;;
 ;;;;;;;;;;;;;;;;;;;;
 
-(def web-thickness 3.5)
 (def post-size 0.1)
 (def web-post
-	(translate [0 0 (+ (/ web-thickness -2) plate-thickness)]
-		(cube post-size post-size web-thickness)
+	(translate [0 0 (half plate-thickness)]
+		(cube post-size post-size plate-thickness)
 	)
 )
 
@@ -447,8 +446,8 @@
 	(let [
 		plate-height (/ (- sa-double-length mount-height) 3)
 		top-plate
-			(translate [0 (half (+ plate-height mount-height)) (- plate-thickness (half web-thickness))]
-				(cube mount-width plate-height web-thickness)
+			(translate [0 (half (+ plate-height mount-height)) (half plate-thickness)]
+				(cube mount-width plate-height plate-thickness)
 			)
 	] (union top-plate (mirror [0 1 0] top-plate)))
 )
