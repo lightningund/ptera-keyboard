@@ -44,7 +44,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;
 
 (def lastrow (dec nrows))
-(def cornerrow (dec lastrow))
 (def lastcol (dec ncols))
 
 ;;;;;;;;;;;;;;;;;
@@ -282,27 +281,14 @@
 )
 
 (def post-adj (half post-size))
-; Post list order: [tr, tl, bl, br]
-(defn gen-posts [half-width half-height]
-	[
-		(translate [(- half-width post-adj) (- half-height post-adj) 0] web-post)
-		(translate [(- post-adj half-width) (- half-height post-adj) 0] web-post)
-		(translate [(- post-adj half-width) (- post-adj half-height) 0] web-post)
-		(translate [(- half-width post-adj) (- post-adj half-height) 0] web-post)
-	]
-)
-
-(def web-posts
-	(let [
-		half-w (half mount-width)
-		half-h (half mount-height)
-	] (gen-posts half-w half-h))
-)
-(def web-post-tr (get web-posts 0))
-(def web-post-tl (get web-posts 1))
-(def web-post-bl (get web-posts 2))
-(def web-post-br (get web-posts 3))
-(ns-unmap *ns* 'web-posts)
+(def half-mw (half mount-width))
+(def half-mh (half mount-height))
+(def web-post-tr (translate [(- half-mw post-adj) (- half-mh post-adj) 0] web-post))
+(def web-post-tl (translate [(- post-adj half-mw) (- half-mh post-adj) 0] web-post))
+(def web-post-bl (translate [(- post-adj half-mw) (- post-adj half-mh) 0] web-post))
+(def web-post-br (translate [(- half-mw post-adj) (- post-adj half-mh) 0] web-post))
+(ns-unmap *ns* 'half-mw)
+(ns-unmap *ns* 'half-mh)
 
 ; Splits the list into groups of 3, with a step of 1
 ; Then applies `hull` to each, to make a full triangle
@@ -394,17 +380,6 @@
 
 (defn bottom-hull [& p]
 	(hull p (bottom 0.001 p))
-)
-
-(def left-wall-x-offset 10)
-(def left-wall-z-offset 3)
-
-(defn left-key-position [row direction]
-	(map - (key-position 0 row [(* mount-width -0.5) (* direction mount-height 0.5) 0]) [left-wall-x-offset 0 left-wall-z-offset])
-)
-
-(defn left-key-place [row direction shape]
-	(translate (left-key-position row direction) shape)
 )
 
 (defn wall-locate1 [dx dy] [(* dx wall-thickness) (* dy wall-thickness) -1])
