@@ -159,16 +159,13 @@
 	(let [
 		cap-top-height (+ plate-thickness sa-profile-key-height)
 		row-radius (+ (/ (half (+ mount-height extra-height)) (Math/sin (half col-curve))) cap-top-height)
-		placed-shape (->>
-			shape
-			(translate-fn [0 0 (- row-radius)])
-			(rotate-x-fn (* col-curve (- centerrow row)))
-			(translate-fn [0 0 row-radius])
-			(translate-fn [(* column (+ mount-width extra-width)) 0 0])
-			(translate-fn (column-offset column))
-		)
 	] (->>
-		placed-shape
+		shape
+		(translate-fn [0 0 (- row-radius)])
+		(rotate-x-fn (* col-curve (- centerrow row)))
+		(translate-fn [0 0 row-radius])
+		(translate-fn [(* column (+ mount-width extra-width)) 0 0])
+		(translate-fn (column-offset column))
 		(rotate-y-fn tenting-angle)
 		(translate-fn [0 0 keyboard-z-offset])
 	))
