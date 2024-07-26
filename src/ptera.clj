@@ -19,9 +19,7 @@
 (def ncols 6)
 
 (def col-curve (/ pi 12)) ; curvature of the columns
-(def row-curve (/ pi 36)) ; curvature of the rows
 (def centerrow (- nrows 3)) ; controls front-back tilt
-(def centercol 4) ; controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (deg2rad 7)) ; or, change this for more precise tenting control
 
 (defn column-offset [column]
@@ -34,7 +32,7 @@
 
 (def thumb-offsets [6 -3 -6])
 
-(def keyboard-z-offset 16) ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
+(def keyboard-z-offset 25) ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
 
 (def extra-width 2.5) ; extra space between the base of keys; original= 2
 (def extra-height 1.0) ; original= 0.5
@@ -157,21 +155,16 @@
 (def columns (range 0 ncols))
 (def rows (range 0 nrows))
 
-(def cap-top-height (+ plate-thickness sa-profile-key-height))
-(def row-radius (+ (/ (half (+ mount-height extra-height)) (Math/sin (half col-curve))) cap-top-height))
-(def column-radius (+ (/ (half (+ mount-width extra-width)) (Math/sin (half row-curve))) cap-top-height))
-
 (defn apply-key-geometry [translate-fn rotate-x-fn rotate-y-fn column row shape]
 	(let [
-		column-angle (* row-curve (- centercol column))
+		cap-top-height (+ plate-thickness sa-profile-key-height)
+		row-radius (+ (/ (half (+ mount-height extra-height)) (Math/sin (half col-curve))) cap-top-height)
 		placed-shape (->>
 			shape
 			(translate-fn [0 0 (- row-radius)])
 			(rotate-x-fn (* col-curve (- centerrow row)))
 			(translate-fn [0 0 row-radius])
-			(translate-fn [0 0 (- column-radius)])
-			(rotate-y-fn column-angle)
-			(translate-fn [0 0 column-radius])
+			(translate-fn [(* column (+ mount-width extra-width)) 0 0])
 			(translate-fn (column-offset column))
 		)
 	] (->>
