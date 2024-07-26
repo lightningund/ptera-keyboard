@@ -22,7 +22,7 @@
 (def row-curve (/ pi 36)) ; curvature of the rows
 (def centerrow (- nrows 3)) ; controls front-back tilt
 (def centercol 4) ; controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (/ pi 10)) ; or, change this for more precise tenting control
+(def tenting-angle (deg2rad 7)) ; or, change this for more precise tenting control
 (def column-style (if (> nrows 5) :orthographic :standard)) ; options include :standard, :orthographic
 ; (def column-style :fixed)
 
