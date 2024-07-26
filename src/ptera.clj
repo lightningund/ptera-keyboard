@@ -18,8 +18,8 @@
 (def nrows 5)
 (def ncols 6)
 
-(def α (/ pi 12)) ; curvature of the columns
-(def β (/ pi 36)) ; curvature of the rows
+(def col-curve (/ pi 12)) ; curvature of the columns
+(def row-curve (/ pi 36)) ; curvature of the rows
 (def centerrow (- nrows 3)) ; controls front-back tilt
 (def centercol 4) ; controls left-right tilt / tenting (higher number is more tenting)
 (def tenting-angle (/ pi 10)) ; or, change this for more precise tenting control
@@ -158,27 +158,6 @@
 			(color [240/255 223/255 175/255 1])
 		)
 	)
-	2 (let [
-		bl2 (half sa-double-length)
-		bw2 (half 18.25)
-		key-cap
-			(hull
-				(->>
-					(polygon [[bw2 bl2] [bw2 (- bl2)] [(- bw2) (- bl2)] [(- bw2) bl2]])
-					(extrude-linear {:height 0.1 :twist 0 :convexity 0})
-					(translate [0 0 0.05]))
-				(->>
-					(polygon [[6 16] [6 -16] [-6 -16] [-6 16]])
-					(extrude-linear {:height 0.1 :twist 0 :convexity 0})
-					(translate [0 0 12])
-				)
-			)
-		] (->>
-			key-cap
-			(translate [0 0 (+ 5 plate-thickness)])
-			(color [127/255 159/255 127/255 1])
-		)
-	)
 })
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -189,18 +168,18 @@
 (def rows (range 0 nrows))
 
 (def cap-top-height (+ plate-thickness sa-profile-key-height))
-(def row-radius (+ (/ (half (+ mount-height extra-height)) (Math/sin (half α))) cap-top-height))
-(def column-radius (+ (/ (half (+ mount-width extra-width)) (Math/sin (half β))) cap-top-height))
-(def column-x-delta (+ -1 (- (* column-radius (Math/sin β)))))
+(def row-radius (+ (/ (half (+ mount-height extra-height)) (Math/sin (half col-curve))) cap-top-height))
+(def column-radius (+ (/ (half (+ mount-width extra-width)) (Math/sin (half row-curve))) cap-top-height))
+(def column-x-delta (+ -1 (- (* column-radius (Math/sin row-curve)))))
 
 (defn apply-key-geometry [translate-fn rotate-x-fn rotate-y-fn column row shape]
 	(let [
-		column-angle (* β (- centercol column))
+		column-angle (* row-curve (- centercol column))
 		column-z-delta (* column-radius (- 1 (Math/cos column-angle)))
 		placed-shape (->>
 			shape
 			(translate-fn [0 0 (- row-radius)])
-			(rotate-x-fn (* α (- centerrow row)))
+			(rotate-x-fn (* col-curve (- centerrow row)))
 			(translate-fn [0 0 row-radius])
 			(translate-fn [0 0 (- column-radius)])
 			(rotate-y-fn column-angle)
@@ -210,7 +189,7 @@
 		placed-shape-ortho (->>
 			shape
 			(translate-fn [0 0 (- row-radius)])
-			(rotate-x-fn (* α (- centerrow row)))
+			(rotate-x-fn (* col-curve (- centerrow row)))
 			(translate-fn [0 0 row-radius])
 			(rotate-y-fn column-angle)
 			(translate-fn [(- (* (- column centercol) column-x-delta)) 0 column-z-delta])
@@ -221,7 +200,7 @@
 			(rotate-y-fn (nth fixed-angles column))
 			(translate-fn [(nth fixed-x column) 0 (nth fixed-z column)])
 			(translate-fn [0 0 (- (+ row-radius (nth fixed-z column)))])
-			(rotate-x-fn (* α (- centerrow row)))
+			(rotate-x-fn (* col-curve (- centerrow row)))
 			(translate-fn [0 0 (+ row-radius (nth fixed-z column))])
 			(rotate-y-fn fixed-tenting)
 			(translate-fn [0 (second (column-offset column)) 0])
@@ -294,7 +273,7 @@
 			row rows
 			:when (or (.contains [2 3] column) (not= row lastrow))
 		] (key-place column row
-			(sa-cap (if (= column 5) 1 1))
+			(sa-cap 1)
 		))
 	)
 )
