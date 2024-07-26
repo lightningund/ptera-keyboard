@@ -439,6 +439,51 @@
 	)
 )
 
+(defn half-wall-brace [place1 dx1 dy1 post1 place2 dx2 dy2 post2]
+	(bottom-hull
+		(place1 post1)
+		(place1 (translate (wall-locate1 dx1 dy1) post1))
+		(place2 post2)
+		(place2 (translate (wall-locate1 dx2 dy2) post2))
+	)
+)
+
+(defn half-key-wall-brace [row1 dx1 dy1 post1 row2 dx2 dy2 post2]
+	(half-wall-brace
+		(partial thumb-col row1) dx1 dy1 post1
+		(partial thumb-col row2) dx2 dy2 post2
+	)
+)
+
+(defn half-corner [row dy post alt-post]
+	(union
+		(hull
+			(thumb-col row alt-post)
+			(key-place 0 row post)
+			(key-place 0 row (translate (wall-locate1 0 dy) post))
+		)
+		(hull
+			(thumb-col row alt-post)
+			(thumb-col row post)
+			(key-place 0 row (translate (wall-locate1 0 dy) post))
+			(key-place 0 row (translate (wall-locate2 0 dy) post))
+			(key-place 0 row (translate (wall-locate3 0 dy) post))
+		)
+		(hull
+			(thumb-col row post)
+			(thumb-col row (translate (wall-locate1 -1 0) post))
+			(key-place 0 row (translate (wall-locate2 0 dy) post))
+			(key-place 0 row (translate (wall-locate3 0 dy) post))
+		)
+		(bottom-hull
+			(thumb-col row post)
+			(thumb-col row (translate (wall-locate1 -1 0) post))
+			(key-place 0 row (translate (wall-locate2 0 dy) post))
+			(key-place 0 row (translate (wall-locate3 0 dy) post))
+		)
+	)
+)
+
 (def case-walls
 	(union
 		; Back wall
@@ -460,14 +505,14 @@
 			(dec x) lastrow 0 -1 web-post-br
 		))
 		; Left wall
-		;; (for [y (range 0 nrows)] (key-wall-brace
-		;; 	0 y -1 0 web-post-tl
-		;; 	0 y -1 0 web-post-bl
-		;; ))
-		;; (for [y (range 1 nrows)] (key-wall-brace
-		;; 	0 y -1 0 web-post-tl
-		;; 	0 (dec y) -1 0 web-post-bl
-		;; ))
+		(for [y (range 0 nrows)] (half-key-wall-brace
+			y -1 0 web-post-tl
+			y -1 0 web-post-bl
+		))
+		(for [y (range 1 nrows)] (half-key-wall-brace
+			y -1 0 web-post-tl
+			(dec y) -1 0 web-post-bl
+		))
 		; Right wall
 		(for [y (range 0 nrows)] (key-wall-brace
 			lastcol y 1 0 web-post-tr
@@ -478,14 +523,8 @@
 			lastcol (dec y) 1 0 web-post-br
 		))
 		; Corners
-		(key-wall-brace
-			0 0 0 1 web-post-tl
-			0 0 -1 0 web-post-tl
-		)
-		(key-wall-brace
-			0 lastrow 0 -1 web-post-bl
-			0 lastrow -1 0 web-post-bl
-		)
+		(half-corner 0 1 web-post-tl web-post-tr)
+		(half-corner lastrow -1 web-post-bl web-post-br)
 		(key-wall-brace
 			lastcol 0 0 1 web-post-tr
 			lastcol 0 1 0 web-post-tr
