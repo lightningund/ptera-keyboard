@@ -1,10 +1,9 @@
 (ns ptera
 	(:refer-clojure :exclude [use import])
 	(:require
-		[clojure.core.matrix :refer [array matrix mmul]]
-		[scad-clj.scad :refer :all]
+		[clojure.core.matrix :refer [mmul]]
+		[scad-clj.scad :refer [write-scad]]
 		[scad-clj.model :refer :all]
-		[unicode-math.core :refer :all]
 	)
 )
 
@@ -19,11 +18,11 @@
 (def nrows 5)
 (def ncols 6)
 
-(def α (/ π 12)) ; curvature of the columns
-(def β (/ π 36)) ; curvature of the rows
+(def α (/ pi 12)) ; curvature of the columns
+(def β (/ pi 36)) ; curvature of the rows
 (def centerrow (- nrows 3)) ; controls front-back tilt
 (def centercol 4) ; controls left-right tilt / tenting (higher number is more tenting)
-(def tenting-angle (/ π 10)) ; or, change this for more precise tenting control
+(def tenting-angle (/ pi 10)) ; or, change this for more precise tenting control
 (def column-style (if (> nrows 5) :orthographic :standard)) ; options include :standard, :orthographic
 ; (def column-style :fixed)
 
@@ -93,7 +92,7 @@
 						(cube 1.5 2.75 plate-thickness)
 					)
 					(translate [(+ (half keyswitch-width)) 0 1]
-						(rotate (half π) [1 0 0]
+						(rotate (half pi) [1 0 0]
 							(with-fn 100 (cylinder 1 2.75))
 						)
 					)
@@ -109,7 +108,6 @@
 ;; SA Keycaps ;;
 ;;;;;;;;;;;;;;;;
 
-(def sa-length 18.25)
 (def sa-double-length 37.5)
 (def sa-cap {
 	1 (let [
@@ -194,7 +192,6 @@
 (def row-radius (+ (/ (half (+ mount-height extra-height)) (Math/sin (half α))) cap-top-height))
 (def column-radius (+ (/ (half (+ mount-width extra-width)) (Math/sin (half β))) cap-top-height))
 (def column-x-delta (+ -1 (- (* column-radius (Math/sin β)))))
-(def column-base-angle (* β (- centercol 2)))
 
 (defn apply-key-geometry [translate-fn rotate-x-fn rotate-y-fn column row shape]
 	(let [
@@ -480,7 +477,7 @@
 (def thumbcaps
 	(union
 		(thumb-1x-layout (sa-cap 1))
-		(thumb-15x-layout (rotate (half π) [0 0 1] (sa-cap 1.5)))
+		(thumb-15x-layout (rotate (half pi) [0 0 1] (sa-cap 1.5)))
 	)
 )
 
