@@ -255,7 +255,7 @@
 (defn thumb-col [row shape]
 	(->>
 		shape
-		(translate [-11 0 8])
+		(translate [-13 0 7.5])
 		(rotate (deg2rad -60) [0 1 0])
 		(key-place 0 row)
 		(color [1 0 0 1])
@@ -348,6 +348,38 @@
 ;; Thumb Connectors ;;
 ;;;;;;;;;;;;;;;;;;;;;;
 
+(def thumb-connectors
+	(union
+		; Between thumb buttons
+		(for [y (range 1 nrows)]
+			(hull
+				(thumb-col y web-post-tl)
+				(thumb-col y web-post-tr)
+				(thumb-col (dec y) web-post-bl)
+				(thumb-col (dec y) web-post-br)
+			)
+		)
+		; Between thumb buttons and main buttons
+		(for [y (range 0 nrows)]
+			(hull
+				(thumb-col y web-post-tr)
+				(thumb-col y web-post-br)
+				(key-place 0 y web-post-tl)
+				(key-place 0 y web-post-bl)
+			)
+		)
+		; Diagonal connections
+		(for [y (range 1 nrows)]
+			(hull
+				(thumb-col y web-post-tr)
+				(thumb-col (dec y) web-post-br)
+				(key-place 0 y web-post-tl)
+				(key-place 0 (dec y) web-post-bl)
+			)
+		)
+	)
+)
+
 ;;;;;;;;;;
 ;; Case ;;
 ;;;;;;;;;;
@@ -428,14 +460,14 @@
 			(dec x) lastrow 0 -1 web-post-br
 		))
 		; Left wall
-		(for [y (range 0 nrows)] (key-wall-brace
-			0 y -1 0 web-post-tl
-			0 y -1 0 web-post-bl
-		))
-		(for [y (range 1 nrows)] (key-wall-brace
-			0 y -1 0 web-post-tl
-			0 (dec y) -1 0 web-post-bl
-		))
+		;; (for [y (range 0 nrows)] (key-wall-brace
+		;; 	0 y -1 0 web-post-tl
+		;; 	0 y -1 0 web-post-bl
+		;; ))
+		;; (for [y (range 1 nrows)] (key-wall-brace
+		;; 	0 y -1 0 web-post-tl
+		;; 	0 (dec y) -1 0 web-post-bl
+		;; ))
 		; Right wall
 		(for [y (range 0 nrows)] (key-wall-brace
 			lastcol y 1 0 web-post-tr
@@ -471,6 +503,7 @@
 			key-holes
 			thumb
 			connectors
+			thumb-connectors
 			case-walls
 		)
 		;; (translate [0 0 -20] (cube 350 350 40))
