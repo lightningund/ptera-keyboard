@@ -92,8 +92,8 @@
 ;; SA Keycaps ;;
 ;;;;;;;;;;;;;;;;
 
-(def sa-cap {
-	1 (let [
+(def sa-cap
+	(let [
 		bl2 (half 18.5)
 		m (half 17)
 		key-cap
@@ -120,28 +120,7 @@
 			(color [220/255 163/255 163/255 1])
 		)
 	)
-	1.5 (let [
-		bl2 (half 18.25)
-		bw2 (half 28)
-		key-cap
-			(hull
-				(->>
-					(polygon [[bw2 bl2] [bw2 (- bl2)] [(- bw2) (- bl2)] [(- bw2) bl2]])
-					(extrude-linear {:height 0.1 :twist 0 :convexity 0})
-					(translate [0 0 0.05]))
-				(->>
-					(polygon [[11 6] [-11 6] [-11 -6] [11 -6]])
-					(extrude-linear {:height 0.1 :twist 0 :convexity 0})
-					(translate [0 0 12])
-				)
-			)
-		] (->>
-			key-cap
-			(translate [0 0 (+ 5 plate-thickness)])
-			(color [240/255 223/255 175/255 1])
-		)
-	)
-})
+)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Placement Functions ;;
@@ -195,15 +174,15 @@
 ;; Main Keys ;;
 ;;;;;;;;;;;;;;;
 
-(def key-holes
+(def main-keys
 	(union
 		(all-keys-for #(key-place %1 %2 single-plate))
 	)
 )
 
-(def caps
-	(apply union
-		(all-keys-for #(key-place %1 %2 (sa-cap 1)))
+(def main-caps
+	(union
+		(all-keys-for #(key-place %1 %2 sa-cap))
 	)
 )
 
@@ -211,7 +190,7 @@
 ;; Thumb Keys ;;
 ;;;;;;;;;;;;;;;;
 
-(defn thumb-col [row shape]
+(defn place-thumb [row shape]
 	(->>
 		shape
 		(translate [-13 0 7.5])
@@ -221,10 +200,18 @@
 	)
 )
 
-(def thumb
+(def thumb-keys
 	(union
 		(for [y (range 0 nrows)]
-			(thumb-col y single-plate)
+			(place-thumb y single-plate)
+		)
+	)
+)
+
+(def thumb-caps
+	(union
+		(for [y (range 0 nrows)]
+			(place-thumb y sa-cap)
 		)
 	)
 )
@@ -299,17 +286,17 @@
 		; Between thumb buttons
 		(for [y (range 1 nrows)]
 			(hull
-				(thumb-col y web-post-tl)
-				(thumb-col y web-post-tr)
-				(thumb-col (dec y) web-post-bl)
-				(thumb-col (dec y) web-post-br)
+				(place-thumb y web-post-tl)
+				(place-thumb y web-post-tr)
+				(place-thumb (dec y) web-post-bl)
+				(place-thumb (dec y) web-post-br)
 			)
 		)
 		; Between thumb buttons and main buttons
 		(for [y (range 0 nrows)]
 			(hull
-				(thumb-col y web-post-tr)
-				(thumb-col y web-post-br)
+				(place-thumb y web-post-tr)
+				(place-thumb y web-post-br)
 				(key-place 0 y web-post-tl)
 				(key-place 0 y web-post-bl)
 			)
@@ -317,8 +304,8 @@
 		; Diagonal connections
 		(for [y (range 1 nrows)]
 			(hull
-				(thumb-col y web-post-tr)
-				(thumb-col (dec y) web-post-br)
+				(place-thumb y web-post-tr)
+				(place-thumb (dec y) web-post-br)
 				(key-place 0 y web-post-tl)
 				(key-place 0 (dec y) web-post-bl)
 			)
@@ -385,34 +372,34 @@
 
 (defn half-key-wall-brace [row1 dx1 dy1 post1 row2 dx2 dy2 post2]
 	(half-wall-brace
-		(partial thumb-col row1) dx1 dy1 post1
-		(partial thumb-col row2) dx2 dy2 post2
+		(partial place-thumb row1) dx1 dy1 post1
+		(partial place-thumb row2) dx2 dy2 post2
 	)
 )
 
 (defn half-corner [row dy post alt-post]
 	(union
 		(hull
-			(thumb-col row alt-post)
+			(place-thumb row alt-post)
 			(key-place 0 row post)
 			(key-place 0 row (translate (wall-locate1 0 dy) post))
 		)
 		(hull
-			(thumb-col row alt-post)
-			(thumb-col row post)
+			(place-thumb row alt-post)
+			(place-thumb row post)
 			(key-place 0 row (translate (wall-locate1 0 dy) post))
 			(key-place 0 row (translate (wall-locate2 0 dy) post))
 			(key-place 0 row (translate (wall-locate3 0 dy) post))
 		)
 		(hull
-			(thumb-col row post)
-			(thumb-col row (translate (wall-locate1 -1 0) post))
+			(place-thumb row post)
+			(place-thumb row (translate (wall-locate1 -1 0) post))
 			(key-place 0 row (translate (wall-locate2 0 dy) post))
 			(key-place 0 row (translate (wall-locate3 0 dy) post))
 		)
 		(bottom-hull
-			(thumb-col row post)
-			(thumb-col row (translate (wall-locate1 -1 0) post))
+			(place-thumb row post)
+			(place-thumb row (translate (wall-locate1 -1 0) post))
 			(key-place 0 row (translate (wall-locate2 0 dy) post))
 			(key-place 0 row (translate (wall-locate3 0 dy) post))
 		)
@@ -474,8 +461,8 @@
 (def model-right
 	(difference
 		(union
-			key-holes
-			thumb
+			main-keys
+			thumb-keys
 			connectors
 			thumb-connectors
 			case-walls
@@ -488,16 +475,18 @@
 
 ;; (spit "things/left.scad" (write-scad (mirror [-1 0 0] model-right)))
 
-;; (spit "things/right-test.scad"
-;; 	(write-scad
-;; 		(union
-;; 			key-holes
-;; 			connectors
-;; 			case-walls
-;; 			thumbcaps
-;; 			caps
-;; 		)
-;; 	)
-;; )
+(spit "things/right-test.scad"
+	(write-scad
+		(union
+			main-keys
+			thumb-keys
+			connectors
+			thumb-connectors
+			case-walls
+			main-caps
+			thumb-caps
+		)
+	)
+)
 
 (defn -main [dum] 1) ; dummy to make it easier to batch
