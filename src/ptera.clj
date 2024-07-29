@@ -20,7 +20,7 @@
 
 (def col-curve (/ pi 12)) ; curvature of the columns
 (def centerrow (- nrows 3)) ; controls front-back tilt
-(def tenting-angle (deg2rad 7)) ; or, change this for more precise tenting control
+(def tenting-angle (deg2rad 9)) ; or, change this for more precise tenting control
 
 (defn column-offset [column]
 	(cond
@@ -481,7 +481,7 @@
 			thumb-connectors
 			case-walls
 		)
-		;; (translate [0 0 -20] (cube 350 350 40))
+		(translate [0 0 -20] (cube 350 350 40))
 	)
 )
 
