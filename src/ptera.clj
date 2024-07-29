@@ -1,7 +1,6 @@
 (ns ptera
 	(:refer-clojure :exclude [use import])
 	(:require
-		[clojure.core.matrix :refer [mmul]]
 		[scad-clj.scad :refer [write-scad]]
 		[scad-clj.model :refer :all]
 	)
