@@ -220,27 +220,28 @@
 ;; Main Connectors ;;
 ;;;;;;;;;;;;;;;;;;;;;
 
-(def post-size 0.1)
-(def web-post
-	(translate [0 0 (half plate-thickness)]
-		(cube post-size post-size plate-thickness)
-	)
+(def web-posts
+	(let [
+		post-size 0.1
+		web-post
+			(translate [0 0 (half plate-thickness)]
+				(cube post-size post-size plate-thickness)
+			)
+		post-adj (half post-size)
+		half-mw (half mount-width)
+		half-mh (half mount-height)
+	] [
+		(translate [(- half-mw post-adj) (- half-mh post-adj) 0] web-post)
+		(translate [(- post-adj half-mw) (- half-mh post-adj) 0] web-post)
+		(translate [(- post-adj half-mw) (- post-adj half-mh) 0] web-post)
+		(translate [(- half-mw post-adj) (- post-adj half-mh) 0] web-post)
+	])
 )
 
-(def post-adj (half post-size))
-(def half-mw (half mount-width))
-(def half-mh (half mount-height))
-(def web-post-tr (translate [(- half-mw post-adj) (- half-mh post-adj) 0] web-post))
-(def web-post-tl (translate [(- post-adj half-mw) (- half-mh post-adj) 0] web-post))
-(def web-post-bl (translate [(- post-adj half-mw) (- post-adj half-mh) 0] web-post))
-(def web-post-br (translate [(- half-mw post-adj) (- post-adj half-mh) 0] web-post))
-(ns-unmap *ns* 'half-mw)
-(ns-unmap *ns* 'half-mh)
-
-; Splits the list into groups of 3, with a step of 1
-; Then applies `hull` to each, to make a full triangle
-; Then creates the union of all the triangles
-(defn triangle-hulls [& shapes] (union (map hull (partition 3 1 shapes))))
+(def web-post-tr (get web-posts 0))
+(def web-post-tl (get web-posts 1))
+(def web-post-bl (get web-posts 2))
+(def web-post-br (get web-posts 3))
 
 (def connectors
 	(union
