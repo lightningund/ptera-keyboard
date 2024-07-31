@@ -464,7 +464,7 @@
 	)
 )
 
-(def model-right
+(spit "things/right.scad" (write-scad
 	(difference
 		(union
 			main-keys
@@ -475,9 +475,7 @@
 		)
 		(translate [0 0 -20] (cube 350 350 40))
 	)
-)
-
-(spit "things/right.scad" (write-scad model-right))
+))
 
 (spit "things/right-test.scad"
 	(write-scad
