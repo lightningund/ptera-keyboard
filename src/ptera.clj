@@ -201,7 +201,6 @@
 		(rotate (deg2rad -60) [0 1 0])
 		(translate [(- (half mount-width)) 0 0])
 		(key-place 0 row)
-		(color [1 0 0 1])
 	)
 )
 
@@ -480,13 +479,13 @@
 (spit "things/right-test.scad"
 	(write-scad
 		(union
-			main-keys
-			thumb-keys
-			connectors
-			thumb-connectors
-			case-walls
-			main-caps
-			thumb-caps
+			(color [0.2 0.2 0.8 1] main-keys)
+			(color [0.2 0.8 0.2 1] thumb-keys)
+			(color [0.2 0.8 0.8 1] connectors)
+			(color [0.8 0.2 0.2 1] thumb-connectors)
+			(color [0.8 0.2 0.8 1] case-walls)
+			(color [0.8 0.8 0.2 1] main-caps)
+			(color [0.8 0.8 0.8 1] thumb-caps)
 		)
 	)
 )
