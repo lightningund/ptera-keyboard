@@ -19,24 +19,24 @@
 
 (def col-curve (/ pi 12)) ; curvature of the columns
 (def centerrow (- nrows 3)) ; controls front-back tilt
-(def tenting-angle (deg2rad 9)) ; or, change this for more precise tenting control
+(def tenting-angle (deg2rad 9)) ; change this for precise tenting control
 
 (defn column-offset [column]
 	(cond
 		(= column 2) [0 2.82 -4.5]
-		(>= column 4) [0 -8 5.64] ; original [0 -5.8 5.64]
+		(>= column 4) [0 -8 5.64]
 		:else [0 0 0]
 	)
 )
 
-(def keyboard-z-offset 25) ; controls overall height; original=9 with centercol=3; use 16 for centercol=2
+(def keyboard-z-offset 25) ; controls overall height
 
-(def extra-width 2.5) ; extra space between the base of keys; original= 2
-(def extra-height 1.0) ; original= 0.5
+(def extra-width 2.5) ; extra space between the base of keys
+(def extra-height 1.0)
 
 (def wall-z-offset -15) ; length of the first downward-sloping part of the wall (negative)
 (def wall-xy-offset 8) ; offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
-(def wall-thickness 2) ; wall thickness parameter; originally 5
+(def wall-thickness 2) ; wall thickness parameter
 
 ;;;;;;;;;;;;;;;;;;;;;;;
 ;; General variables ;;
@@ -49,48 +49,53 @@
 ;; Switch Hole ;;
 ;;;;;;;;;;;;;;;;;
 
-(def keyswitch-height 14.4) ; Was 14.1, then 14.25
-(def keyswitch-width 14.4)
-
 (def sa-profile-key-height 12.7)
 
 (def plate-thickness 4)
-(def mount-width (+ keyswitch-width 3))
-(def mount-height (+ keyswitch-height 3))
+
+(def keyswitch-width 14.4)
+(def keyswitch-height 14.4)
+
+(def mount-space 3)
+
+(def mount-width (+ keyswitch-width mount-space))
+(def mount-height (+ keyswitch-height mount-space))
 
 (def single-plate
 	(let [
+		nub-width 2.75
+		nub-radius 1
 		plate-half
 			(union
 				; Top Wall
-				(translate [0 (+ 0.75 (half keyswitch-height)) (half plate-thickness)]
-					(cube (+ keyswitch-width 3) 1.5 plate-thickness)
+				(translate [0 (+ (/ mount-space 4) (half keyswitch-height)) (half plate-thickness)]
+					(cube mount-width (half mount-space) plate-thickness)
 				)
 				; Left Wall
-				(translate [(+ 0.75 (half keyswitch-width)) 0 (half plate-thickness)]
-					(cube 1.5 (+ keyswitch-height 3) plate-thickness)
+				(translate [(+ (/ mount-space 4) (half keyswitch-width)) 0 (half plate-thickness)]
+					(cube (half mount-space) mount-height plate-thickness)
 				)
 				; "Side Nub"
 				(hull
-					(translate [(+ 0.75 (half keyswitch-width)) 0 (half plate-thickness)]
-						(cube 1.5 2.75 plate-thickness)
+					(translate [(+ (/ mount-space 4) (half keyswitch-width)) 0 (half plate-thickness)]
+						(cube (half mount-space) nub-width plate-thickness)
 					)
-					(translate [(+ (half keyswitch-width)) 0 1]
+					(translate [(+ (half keyswitch-width)) 0 nub-radius]
 						(rotate (half pi) [1 0 0]
-							(with-fn 100 (cylinder 1 2.75))
+							(with-fn 100 (cylinder nub-radius nub-width))
 						)
 					)
 				)
 			)
 	] (union
 		plate-half
-		(mirror [0 1 0] (mirror [1 0 0] plate-half))
+		(rotate pi [0 0 1] plate-half)
 	))
 )
 
-;;;;;;;;;;;;;;;;
-;; SA Keycaps ;;
-;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;
+;; SA Keycap ;;
+;;;;;;;;;;;;;;;
 
 (def sa-cap
 	(let [
@@ -152,7 +157,6 @@
 		(>= row 0)
 		(< col ncols)
 		(< row nrows)
-		;; (not (and (.contains [4 5] col) (= row lastrow)))
 	)
 )
 
@@ -193,8 +197,9 @@
 (defn place-thumb [row shape]
 	(->>
 		shape
-		(translate [-13 0 7.5])
+		(translate [(- (half mount-width)) 0 0])
 		(rotate (deg2rad -60) [0 1 0])
+		(translate [(- (half mount-width)) 0 0])
 		(key-place 0 row)
 		(color [1 0 0 1])
 	)
@@ -473,8 +478,6 @@
 )
 
 (spit "things/right.scad" (write-scad model-right))
-
-;; (spit "things/left.scad" (write-scad (mirror [-1 0 0] model-right)))
 
 (spit "things/right-test.scad"
 	(write-scad
