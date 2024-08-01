@@ -19,7 +19,7 @@
 
 (def col-curve (/ pi 12)) ; curvature of the columns
 (def centerrow (- nrows 3)) ; controls front-back tilt
-(def tenting-angle (deg2rad 9)) ; change this for precise tenting control
+(def tenting-angle (deg2rad 13)) ; change this for precise tenting control
 
 (defn column-offset [column]
 	(cond
@@ -44,6 +44,7 @@
 
 (def lastrow (dec nrows))
 (def lastcol (dec ncols))
+(def cornerrow (if (>= ncols 4) (dec lastrow) lastrow))
 
 ;;;;;;;;;;;;;;;;;
 ;; Switch Hole ;;
@@ -157,6 +158,7 @@
 		(>= row 0)
 		(< col ncols)
 		(< row nrows)
+		(not (and (.contains [4 5] col) (= row lastrow)))
 	)
 )
 
@@ -279,6 +281,26 @@
 				(key-place (inc col) (inc row) web-post-tl)
 			))
 		)
+		; Special connection because of the missing row
+		(if (>= ncols 4)
+			(union
+				(hull
+					(key-place 3 (- lastrow 1) web-post-br)
+					(key-place 4 (- lastrow 1) web-post-bl)
+					(key-place 3 lastrow web-post-tr)
+				)
+				(hull
+					(key-place 4 (- lastrow 1) web-post-bl)
+					(key-place 3 lastrow web-post-tr)
+					(key-place 3 lastrow web-post-br)
+				)
+				(hull
+					(key-place 4 (- lastrow 1) web-post-bl)
+					(key-place 4 (- lastrow 1) web-post-br)
+					(key-place 3 lastrow web-post-br)
+				)
+			) ()
+		)
 	)
 )
 
@@ -326,7 +348,7 @@
 	(->>
 		(project p)
 		(extrude-linear {:height height :twist 0 :convexity 0})
-		;; (translate [0 0 (- (half height) 10)])
+		(translate [0 0 (- (half height) 10)])
 	)
 )
 
@@ -423,14 +445,26 @@
 			(dec x) 0 0 1 web-post-tr
 		))
 		; Front wall
-		(for [x (range 0 ncols)] (key-wall-brace
+		(for [x (range 0 (min 4 ncols))] (key-wall-brace
 			x lastrow 0 -1 web-post-bl
 			x lastrow 0 -1 web-post-br
 		))
-		(for [x (range 1 ncols)] (key-wall-brace
+		(for [x (range 1 (min 4 ncols))] (key-wall-brace
 			x lastrow 0 -1 web-post-bl
 			(dec x) lastrow 0 -1 web-post-br
 		))
+		(key-wall-brace
+			5 cornerrow 0 -1 web-post-bl
+			5 cornerrow 0 -1 web-post-br
+		)
+		(key-wall-brace
+			5 cornerrow 0 -1 web-post-bl
+			4 cornerrow 0 -1 web-post-br
+		)
+		(key-wall-brace
+			3 lastrow 0 -1 web-post-br
+			4 cornerrow 0 -1 web-post-br
+		)
 		; Left wall
 		(for [y (range 0 nrows)] (half-key-wall-brace
 			y -1 0 web-post-tl
@@ -441,11 +475,11 @@
 			(dec y) -1 0 web-post-bl
 		))
 		; Right wall
-		(for [y (range 0 nrows)] (key-wall-brace
+		(for [y (range 0 (inc cornerrow))] (key-wall-brace
 			lastcol y 1 0 web-post-tr
 			lastcol y 1 0 web-post-br
 		))
-		(for [y (range 1 nrows)] (key-wall-brace
+		(for [y (range 1 (inc cornerrow))] (key-wall-brace
 			lastcol y 1 0 web-post-tr
 			lastcol (dec y) 1 0 web-post-br
 		))
@@ -457,24 +491,26 @@
 			lastcol 0 1 0 web-post-tr
 		)
 		(key-wall-brace
-			lastcol lastrow 0 -1 web-post-br
-			lastcol lastrow 1 0 web-post-br
+			lastcol (dec lastrow) 0 -1 web-post-br
+			lastcol (dec lastrow) 1 0 web-post-br
 		)
 	)
 )
 
-(spit "things/right.scad" (write-scad
-	(difference
-		(union
-			main-keys
-			thumb-keys
-			connectors
-			thumb-connectors
-			case-walls
+(spit "things/right.scad"
+	(write-scad
+		(difference
+			(union
+				main-keys
+				thumb-keys
+				connectors
+				thumb-connectors
+				case-walls
+			)
+			(translate [0 0 -20] (cube 350 350 40))
 		)
-		(translate [0 0 -20] (cube 350 350 40))
 	)
-))
+)
 
 (spit "things/right-test.scad"
 	(write-scad
