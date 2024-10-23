@@ -120,10 +120,8 @@ module sa_cap() {
 		}
 	}
 
-	color([220/255, 163/255, 163/255, 1]) {
-		translate([0, 0, plate_thickness + 5]) {
-			key_cap();
-		}
+	translate([0, 0, plate_thickness + 5]) {
+		key_cap();
 	}
 }
 
