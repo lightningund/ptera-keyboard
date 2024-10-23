@@ -370,8 +370,7 @@ module bottom_hull() {
 
 function wall_locate1(dx, dy) = [dx * wall_thickness, dy * wall_thickness, -1];
 function wall_locate2(dx, dy) = [dx * wall_xy_offset, dy * wall_xy_offset, wall_z_offset];
-function wall_locate3(dx, dy) = [dx * (wall_xy_offset + wall_thickness), dy * (wall_xy_offset + wall_thickness), wall_z_offset];
-// function wall_locate3(dx, dy) = wall_locate1(dx, dy) + wall_locate2(dx, dy) + [0, 0, 1];
+function wall_locate3(dx, dy) = wall_locate1(dx, dy) + wall_locate2(dx, dy) + [0, 0, 1];
 
 module key_wall_brace(x1, y1, dx1, dy1, x2, y2, dx2, dy2) {
 	union() {
