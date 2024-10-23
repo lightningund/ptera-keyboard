@@ -13,7 +13,7 @@ function column_offset(column) =
 	(column == 2) ? [0, -2.82, -4.5] :
 	(column >= 4) ? [0, 8, 5.64] : [0, 0, 0];
 
-keyboard_z_offset = 25; // controls overall height
+keyboard_z_offset = 35; // controls overall height
 
 extra_width = 2.5; // extra space between the base of keys
 extra_height = 1;
