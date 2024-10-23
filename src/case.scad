@@ -43,6 +43,8 @@ mount_space = 3;
 mount_width = keyswitch_width + mount_space;
 mount_height = keyswitch_height + mount_space;
 
+small_num = 1e-3;
+
 module single_plate() {
 	nub_width = 2.75;
 	nub_radius = 1;
@@ -207,7 +209,7 @@ module thumb_caps() {
 module web_posts(idx) {
 	half_mw = mount_width / 2;
 	half_mh = mount_height / 2;
-	post_size = 0.1;
+	post_size = small_num;
 	module web_post() {
 		translate([0, 0, plate_thickness / 2]) {
 			cube([post_size, post_size, plate_thickness], center=true);
@@ -339,7 +341,7 @@ module bottom(height) {
 module bottom_hull() {
 	hull() {
 		children();
-		bottom(0.001) children();
+		bottom(small_num) children();
 	}
 }
 
