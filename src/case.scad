@@ -207,23 +207,90 @@ module thumb_caps() {
 // ;;;;;;;;;;;;;;;;;;;;;
 
 module web_posts(idx) {
-	half_mw = mount_width / 2;
-	half_mh = mount_height / 2;
+	// post_size = small_num;
+
+	// offsets = [[1, 1], [-1, 1], [1, -1], [-1, -1]];
+
+	// translate([offsets[idx][0] * mount_width, offsets[idx][1] * mount_height, plate_thickness] / 2) {
+	// 	cube([post_size, post_size, plate_thickness], center=true);
+	// }
+
+	// ------------------
+
+	// post_size = small_num;
+
+	// offsets = [
+	// 	for (i = [[1, 1], [-1, 1], [1, -1], [-1, -1]])
+	// 	[i[0] * mount_width, i[1] * mount_height, plate_thickness]
+	// ];
+
+	// translate(offsets[idx] / 2) {
+	// 	cube([post_size, post_size, plate_thickness], center=true);
+	// }
+
+	// ------------------
+
 	post_size = small_num;
-	module web_post() {
+
+	offsets = [
+		[mount_width, mount_height],
+		[-mount_width, mount_height],
+		[mount_width, -mount_height],
+		[-mount_width, -mount_height]
+	];
+
+	translate(offsets[idx] / 2) {
 		translate([0, 0, plate_thickness / 2]) {
 			cube([post_size, post_size, plate_thickness], center=true);
 		}
 	}
 
-	offsets = [
-		[half_mw, half_mh],
-		[-half_mw, half_mh],
-		[half_mw, -half_mh],
-		[-half_mw, -half_mh]
-	];
+	// ------------------
 
-	translate(offsets[idx]) web_post();
+	// post_size = small_num;
+
+	// offsets = [
+	// 	[mount_width, mount_height, plate_thickness],
+	// 	[-mount_width, mount_height, plate_thickness],
+	// 	[mount_width, -mount_height, plate_thickness],
+	// 	[-mount_width, -mount_height, plate_thickness]
+	// ];
+
+	// translate(offsets[idx] / 2) {
+	// 	cube([post_size, post_size, plate_thickness], center=true);
+	// }
+
+	// ------------------
+
+	// post_size = small_num;
+
+	// offsets = [
+	// 	[mount_width, mount_height, 0],
+	// 	[-mount_width, mount_height, 0],
+	// 	[mount_width, -mount_height, 0],
+	// 	[-mount_width, -mount_height, 0]
+	// ];
+
+	// translate((offsets[idx] + [0, 0, plate_thickness]) / 2) {
+	// 	cube([post_size, post_size, plate_thickness], center=true);
+	// }
+
+	// ------------------
+
+	// half_mw = mount_width / 2;
+	// half_mh = mount_height / 2;
+	// post_size = small_num;
+
+	// offsets = [
+	// 	[half_mw, half_mh, 0],
+	// 	[-half_mw, half_mh, 0],
+	// 	[half_mw, -half_mh, 0],
+	// 	[-half_mw, -half_mh, 0]
+	// ];
+
+	// translate(offsets[idx] + [0, 0, plate_thickness / 2]) {
+	// 	cube([post_size, post_size, plate_thickness], center=true);
+	// }
 };
 
 module web_post_tr() web_posts(0);
