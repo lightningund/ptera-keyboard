@@ -342,48 +342,48 @@ module bottom_hull() {
 	}
 }
 
-function wall_locate1(dx, dy) = [dx * wall_thickness, dy * wall_thickness, -1];
-function wall_locate2(dx, dy) = [dx * wall_xy_offset, dy * wall_xy_offset, wall_z_offset];
-function wall_locate3(dx, dy) = wall_locate1(dx, dy) + wall_locate2(dx, dy) + [0, 0, 1];
+function wall_locate1(delta) = [delta[0] * wall_thickness, delta[1] * wall_thickness, -1];
+function wall_locate2(delta) = [delta[0] * wall_xy_offset, delta[1] * wall_xy_offset, wall_z_offset];
+function wall_locate3(delta) = wall_locate1(delta) + wall_locate2(delta) + [0, 0, 1];
 
-module key_wall_brace(x1, y1, dx1, dy1, x2, y2, dx2, dy2) {
+module key_wall_brace(x1, y1, delta1, x2, y2, delta2) {
 	union() {
 		hull() {
 			key_place(x1, y1) {
 				children(0);
-				translate(wall_locate1(dx1, dy1)) children(0);
-				translate(wall_locate2(dx1, dy1)) children(0);
-				translate(wall_locate3(dx1, dy1)) children(0);
+				translate(wall_locate1(delta1)) children(0);
+				translate(wall_locate2(delta1)) children(0);
+				translate(wall_locate3(delta1)) children(0);
 			}
 			key_place(x2, y2) {
 				children(1);
-				translate(wall_locate1(dx2, dy2)) children(1);
-				translate(wall_locate2(dx2, dy2)) children(1);
-				translate(wall_locate3(dx2, dy2)) children(1);
+				translate(wall_locate1(delta2)) children(1);
+				translate(wall_locate2(delta2)) children(1);
+				translate(wall_locate3(delta2)) children(1);
 			}
 		}
 		bottom_hull() {
 			key_place(x1, y1) {
-				translate(wall_locate2(dx1, dy1)) children(0);
-				translate(wall_locate3(dx1, dy1)) children(0);
+				translate(wall_locate2(delta1)) children(0);
+				translate(wall_locate3(delta1)) children(0);
 			}
 			key_place(x2, y2) {
-				translate(wall_locate2(dx2, dy2)) children(1);
-				translate(wall_locate3(dx2, dy2)) children(1);
+				translate(wall_locate2(delta2)) children(1);
+				translate(wall_locate3(delta2)) children(1);
 			}
 		}
 	}
 }
 
-module half_key_wall_brace(row1, dx1, dy1, row2, dx2, dy2) {
+module half_key_wall_brace(row1, delta1, row2, delta2) {
 	bottom_hull() {
 		thumb_place(row1) {
 			children(0);
-			translate(wall_locate1(dx1, dy1)) children(0);
+			translate(wall_locate1(delta1)) children(0);
 		}
 		thumb_place(row2) {
 			children(1);
-			translate(wall_locate1(dx2, dy2)) children(1);
+			translate(wall_locate1(delta2)) children(1);
 		}
 	}
 }
@@ -394,7 +394,7 @@ module half_corner(row, dy) {
 			thumb_place(row) children(1);
 			key_place(0, row) {
 				children(0);
-				translate(wall_locate1(0, dy)) children(0);
+				translate(wall_locate1([0, dy])) children(0);
 			}
 		}
 		hull() {
@@ -403,29 +403,29 @@ module half_corner(row, dy) {
 				children(1);
 			}
 			key_place(0, row) {
-				translate(wall_locate1(0, dy)) children(0);
-				translate(wall_locate2(0, dy)) children(0);
-				translate(wall_locate3(0, dy)) children(0);
+				translate(wall_locate1([0, dy])) children(0);
+				translate(wall_locate2([0, dy])) children(0);
+				translate(wall_locate3([0, dy])) children(0);
 			}
 		}
 		hull() {
 			thumb_place(row) {
 				children(0);
-				translate(wall_locate1(-1, 0)) children(0);
+				translate(wall_locate1([-1, 0])) children(0);
 			}
 			key_place(0, row) {
-				translate(wall_locate2(0, dy)) children(0);
-				translate(wall_locate3(0, dy)) children(0);
+				translate(wall_locate2([0, dy])) children(0);
+				translate(wall_locate3([0, dy])) children(0);
 			}
 		}
 		bottom_hull() {
 			thumb_place(row) {
 				children(0);
-				translate(wall_locate1(-1, 0)) children(0);
+				translate(wall_locate1([-1, 0])) children(0);
 			}
 			key_place(0, row) {
-				translate(wall_locate2(0, dy)) children(0);
-				translate(wall_locate3(0, dy)) children(0);
+				translate(wall_locate2([0, dy])) children(0);
+				translate(wall_locate3([0, dy])) children(0);
 			}
 		}
 	}
@@ -464,52 +464,52 @@ module case_walls() {
 	union() {
 		// Back Wall
 		for (x = [0 : ncols - 1]) {
-			key_wall_brace(x, 0, 0, -1, x, 0, 0, -1) {
+			key_wall_brace(x, 0, [0, -1], x, 0, [0, -1]) {
 				web_post_bl();
 				web_post_br();
 			}
 		}
 		for (x = [1 : ncols - 1]) {
-			key_wall_brace(x, 0, 0, -1, x - 1, 0, 0, -1) {
+			key_wall_brace(x, 0, [0, -1], x - 1, 0, [0, -1]) {
 				web_post_bl();
 				web_post_br();
 			}
 		}
 		// Front Wall
 		for (x = [0 : ncols - 1]) {
-			key_wall_brace(x, lastrow, 0, 1, x, lastrow, 0, 1) {
+			key_wall_brace(x, lastrow, [0, 1], x, lastrow, [0, 1]) {
 				web_post_tl();
 				web_post_tr();
 			}
 		}
 		for (x = [1 : ncols - 1]) {
-			key_wall_brace(x, lastrow, 0, 1, x - 1, lastrow, 0, 1) {
+			key_wall_brace(x, lastrow, [0, 1], x - 1, lastrow, [0, 1]) {
 				web_post_tl();
 				web_post_tr();
 			}
 		}
 		// Right Wall
 		for (y = [0 : nrows - 1]) {
-			key_wall_brace(lastcol, y, 1, 0, lastcol, y, 1, 0) {
+			key_wall_brace(lastcol, y, [1, 0], lastcol, y, [1, 0]) {
 				web_post_br();
 				web_post_tr();
 			}
 		}
 		for (y = [1 : nrows - 1]) {
-			key_wall_brace(lastcol, y, 1, 0, lastcol, y - 1, 1, 0) {
+			key_wall_brace(lastcol, y, [1, 0], lastcol, y - 1, [1, 0]) {
 				web_post_br();
 				web_post_tr();
 			}
 		}
 		// Left Wall
 		for (y = [0 : nrows - 1]) {
-			half_key_wall_brace(y, -1, 0, y, -1, 0) {
+			half_key_wall_brace(y, [-1, 0], y, [-1, 0]) {
 				web_post_bl();
 				web_post_tl();
 			}
 		}
 		for (y = [1 : nrows - 1]) {
-			half_key_wall_brace(y, -1, 0, y - 1, -1, 0) {
+			half_key_wall_brace(y, [-1, 0], y - 1, [-1, 0]) {
 				web_post_bl();
 				web_post_tl();
 			}
@@ -523,11 +523,11 @@ module case_walls() {
 			web_post_tl();
 			web_post_tr();
 		}
-		key_wall_brace(lastcol, 0, 0, -1, lastcol, 0, 1, 0) {
+		key_wall_brace(lastcol, 0, [0, -1], lastcol, 0, [1, 0]) {
 			web_post_br();
 			web_post_br();
 		}
-		key_wall_brace(lastcol, lastrow, 0, 1, lastcol, lastrow, 1, 0) {
+		key_wall_brace(lastcol, lastrow, [0, 1], lastcol, lastrow, [1, 0]) {
 			web_post_tr();
 			web_post_tr();
 		}
@@ -570,10 +570,10 @@ module case() {
 			// case_walls();
 
 			color([0.2, 0.2, 0.8, 1]) main_keys();
-			// color([0.8, 0.8, 0.2, 1]) main_caps();
+			color([0.8, 0.8, 0.2, 1]) main_caps();
 			color([0.2, 0.8, 0.8, 1]) main_connectors();
 			color([0.2, 0.8, 0.2, 1]) thumb_keys();
-			// color([0.8, 0.8, 0.8, 1]) thumb_caps();
+			color([0.8, 0.8, 0.8, 1]) thumb_caps();
 			color([0.8, 0.2, 0.2, 1]) thumb_connectors();
 			color([0.8, 0.2, 0.8, 1]) case_walls();
 		}
