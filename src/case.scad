@@ -65,7 +65,7 @@ module single_plate() {
 					cube([mount_space / 2, nub_width, plate_thickness], center=true);
 				}
 				translate([keyswitch_width / 2, 0, nub_radius]) {
-					rotate(90, [1, 0, 0]) {
+					rotate([90, 0, 0]) {
 						cylinder(h=nub_width, r=nub_radius, $fn=100, center=true);
 					}
 				}
@@ -75,7 +75,7 @@ module single_plate() {
 
 	union() {
 		plate_half();
-		rotate(180, [0, 0, 1]) plate_half();
+		rotate([0, 0, 180]) plate_half();
 	}
 }
 
@@ -112,11 +112,11 @@ module key_place(col, row) {
 	row_radius = (((mount_height + extra_height) / 2) / sin(col_curve / 2)) + cap_top_height;
 
 	translate([0, 0, keyboard_z_offset]) {
-		rotate(tenting_angle, [0, 1, 0]) {
+		rotate([0, tenting_angle, 0]) {
 			translate(column_offset(col)) {
 				translate([(mount_width + extra_width) * col, 0, 0]) {
 					translate([0, 0, row_radius]) {
-						rotate(col_curve * (row - centerrow), [1, 0, 0]) {
+						rotate([col_curve * (row - centerrow), 0, 0]) {
 							translate([0, 0, -row_radius]) {
 								children();
 							}
@@ -173,7 +173,7 @@ module main_caps() {
 module thumb_place(row) {
 	key_place(0, row) {
 		translate([-mount_width / 2, 0, 0]) {
-			rotate(-60, [0, 1, 0]) {
+			rotate([0, -60, 0]) {
 				translate([-mount_width / 2, 0, 0]) {
 					children();
 				}
