@@ -82,46 +82,21 @@ module single_plate() {
 // ;;;;;;;;;;;;;;;
 
 module sa_cap() {
-	bl2 = 18.5 / 2;
-	m = 17 / 2;
+	base = 18.5;
+	mid = 17;
+	top = 12;
+	cap_space = 5;
+	seg_height = 6;
 
-	module key_cap() {
-		hull() {
-			translate([0, 0, 0.05]) {
-				linear_extrude(height=0.1) {
-					polygon([
-						[bl2, bl2],
-						[bl2, -bl2],
-						[-bl2, -bl2],
-						[-bl2, bl2]
-					]);
-				}
-			}
-			translate([0, 0, 6]) {
-				linear_extrude(height=0.1) {
-					polygon([
-						[m, m],
-						[m, -m],
-						[-m, -m],
-						[-m, m]
-					]);
-				}
-			}
-			translate([0, 0, 12]) {
-				linear_extrude(height=0.1) {
-					polygon([
-						[6, 6],
-						[6, -6],
-						[-6, -6],
-						[-6, 6]
-					]);
-				}
+	translate([0, 0, plate_thickness + cap_space]) {
+		linear_extrude(height=seg_height, scale=mid/base) {
+			square(base, center=true);
+		}
+		translate([0, 0, seg_height]) {
+			linear_extrude(height=seg_height, scale=top/mid) {
+				square(mid, center=true);
 			}
 		}
-	}
-
-	translate([0, 0, plate_thickness + 5]) {
-		key_cap();
 	}
 }
 
