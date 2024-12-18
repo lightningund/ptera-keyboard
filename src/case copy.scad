@@ -48,14 +48,6 @@ mount_height = keyswitch_height + mount_space;
 
 small_num = 1e-3;
 
-function angle_from_chord(l, r) = 2 * asin(l / (r * 2));
-// function height_gain(i) = col_rad(i) * (1 - cos(asin(120 / (2 * (col_rad(i) - plate_thickness)))));
-function height_gain(i) = col_rad(i) * (1 - cos(angle_from_chord(120, col_rad(i)) / 2));
-
-reference_height = height_gain(0);
-
-// $fn = 200;
-
 total_height = 100;
 
 module single_plate() {
@@ -122,8 +114,6 @@ module sa_cap() {
 // Puts the shape at the correct position and rotation for the specified key
 module key_place(col, row) {
 	col_radius = col_rad(col);
-
-	mount_angle = angle_from_chord(mount_height, col_rad(col));
 
 	height_off = sqrt(col_radius * col_radius + (mount_height * mount_height / 4) - (total_height * total_height / 4));
 
@@ -278,31 +268,6 @@ module main_connectors() {
 	}
 }
 
-// (def connectors
-// 	(union
-// 		; Special connection because of the missing row
-// 		(if (>= ncols 4)
-// 			(union
-// 				(hull
-// 					(key-place 3 (- lastrow 1) web-post-br)
-// 					(key-place 4 (- lastrow 1) web-post-bl)
-// 					(key-place 3 lastrow web-post-tr)
-// 				)
-// 				(hull
-// 					(key-place 4 (- lastrow 1) web-post-bl)
-// 					(key-place 3 lastrow web-post-tr)
-// 					(key-place 3 lastrow web-post-br)
-// 				)
-// 				(hull
-// 					(key-place 4 (- lastrow 1) web-post-bl)
-// 					(key-place 4 (- lastrow 1) web-post-br)
-// 					(key-place 3 lastrow web-post-br)
-// 				)
-// 			) ()
-// 		)
-// 	)
-// )
-
 // ;;;;;;;;;;;;;;;;;;;;;;
 // ;; Thumb Connectors ;;
 // ;;;;;;;;;;;;;;;;;;;;;;
@@ -447,35 +412,6 @@ module half_corner(row, dy) {
 	}
 }
 
-// (defn half-corner [row dy post alt-post]
-// 	(union
-// 		(hull
-// 			(place-thumb row alt-post)
-// 			(key-place 0 row post)
-// 			(key-place 0 row (translate (wall-locate1 0 dy) post))
-// 		)
-// 		(hull
-// 			(place-thumb row alt-post)
-// 			(place-thumb row post)
-// 			(key-place 0 row (translate (wall-locate1 0 dy) post))
-// 			(key-place 0 row (translate (wall-locate2 0 dy) post))
-// 			(key-place 0 row (translate (wall-locate3 0 dy) post))
-// 		)
-// 		(hull
-// 			(place-thumb row post)
-// 			(place-thumb row (translate (wall-locate1 -1 0) post))
-// 			(key-place 0 row (translate (wall-locate2 0 dy) post))
-// 			(key-place 0 row (translate (wall-locate3 0 dy) post))
-// 		)
-// 		(bottom-hull
-// 			(place-thumb row post)
-// 			(place-thumb row (translate (wall-locate1 -1 0) post))
-// 			(key-place 0 row (translate (wall-locate2 0 dy) post))
-// 			(key-place 0 row (translate (wall-locate3 0 dy) post))
-// 		)
-// 	)
-// )
-
 module case_walls() {
 	union() {
 		// Back Wall
@@ -549,32 +485,6 @@ module case_walls() {
 		}
 	}
 }
-
-// (def case-walls
-// 	(union
-// 		; Front wall
-// 		(for [x (range 0 (min 4 ncols))] (key-wall-brace
-// 			x lastrow 0 -1 web-post-bl
-// 			x lastrow 0 -1 web-post-br
-// 		))
-// 		(for [x (range 1 (min 4 ncols))] (key-wall-brace
-// 			x lastrow 0 -1 web-post-bl
-// 			(dec x) lastrow 0 -1 web-post-br
-// 		))
-// 		(key-wall-brace
-// 			5 cornerrow 0 -1 web-post-bl
-// 			5 cornerrow 0 -1 web-post-br
-// 		)
-// 		(key-wall-brace
-// 			5 cornerrow 0 -1 web-post-bl
-// 			4 cornerrow 0 -1 web-post-br
-// 		)
-// 		(key-wall-brace
-// 			3 lastrow 0 -1 web-post-br
-// 			4 cornerrow 0 -1 web-post-br
-// 		)
-// 	)
-// )
 
 module case() {
 	difference() {
