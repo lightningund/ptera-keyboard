@@ -6,7 +6,7 @@ nrows = 5;
 ncols = 6;
 
 col_curve = 180 / 12; // curvature of the columns
-centerrow = nrows - 3; // controls front-back tilt
+centerrow = (nrows - 1) / 2; // controls front-back tilt
 tenting_angle = 13; // change this for precise tenting control
 
 // function col_rad(col) =
@@ -415,30 +415,14 @@ module half_corner(row, dy) {
 module case_walls() {
 	union() {
 		// Back Wall
-		for (x = [0 : ncols - 1]) {
-			key_wall_brace(x, 0, [0, -1], x, 0, [0, -1]) {
-				web_post_bl();
-				web_post_br();
-			}
-		}
-		for (x = [1 : ncols - 1]) {
-			key_wall_brace(x, 0, [0, -1], x - 1, 0, [0, -1]) {
-				web_post_bl();
-				web_post_br();
-			}
+		key_wall_brace(0, 0, [0, -1], ncols - 1, 0, [0, -1]) {
+			web_post_bl();
+			web_post_br();
 		}
 		// Front Wall
-		for (x = [0 : ncols - 1]) {
-			key_wall_brace(x, lastrow, [0, 1], x, lastrow, [0, 1]) {
-				web_post_tl();
-				web_post_tr();
-			}
-		}
-		for (x = [1 : ncols - 1]) {
-			key_wall_brace(x, lastrow, [0, 1], x - 1, lastrow, [0, 1]) {
-				web_post_tl();
-				web_post_tr();
-			}
+		key_wall_brace(0, lastrow, [0, 1], ncols - 1, lastrow, [0, 1]) {
+			web_post_tl();
+			web_post_tr();
 		}
 		// Right Wall
 		for (y = [0 : nrows - 1]) {
