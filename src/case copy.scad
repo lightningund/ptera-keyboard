@@ -470,6 +470,22 @@ module case_walls() {
 	}
 }
 
+module aux_hole() {
+	ground_dist = 10;
+	wall_pos = 68; // TODO: actually calculate somehow
+	thickness = 1;
+	hole = 4;
+	inset = 6;
+	translate([0, wall_pos, ground_dist]) {
+		rotate([90, 0, 0]) {
+			cylinder(r=hole, h=20, $fn=50);
+			translate([0, 0, thickness]) {
+				cylinder(r=inset, h=20, $fn=50);
+			}
+		}
+	}
+}
+
 module case() {
 	difference() {
 		union() {
@@ -487,6 +503,7 @@ module case() {
 			color([0.8, 0.2, 0.2, 1]) thumb_connectors();
 			color([0.8, 0.2, 0.8, 1]) case_walls();
 		}
+		aux_hole();
 		translate([0, 0, -20]) {
 			cube([350, 350, 40], center=true);
 		}
