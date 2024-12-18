@@ -7,8 +7,7 @@ ncols = 6;
 
 col_curve = 180 / 12; // curvature of the columns
 centerrow = nrows - 3; // controls front-back tilt
-// tenting_angle = 13; // change this for precise tenting control
-tenting_angle = 0; // change this for precise tenting control
+tenting_angle = 13; // change this for precise tenting control
 
 // function col_rad(col) =
 // 	(col == 2) ? 83 :
@@ -17,11 +16,7 @@ function col_rad(col) =
 	(col == 2) ? 70 :
 	(col >= 4) ? 150 : 87;
 
-function column_offset(column) =
-	(column == 2) ? [0, -2.82, -4.5] :
-	(column >= 4) ? [0, 8, 5.64] : [0, 0, 0];
-
-keyboard_z_offset = 35; // controls overall height
+keyboard_z_offset = 55; // controls overall height
 
 extra_width = 2.5; // extra space between the base of keys
 extra_height = 1;
@@ -59,35 +54,9 @@ function height_gain(i) = col_rad(i) * (1 - cos(angle_from_chord(120, col_rad(i)
 
 reference_height = height_gain(0);
 
-$fn = 200;
+// $fn = 200;
 
 total_height = 100;
-
-for (col = [2 : ncols - 2]) {
-	col_radius = col_rad(col);
-
-	mount_angle = angle_from_chord(mount_height, col_rad(col));
-
-	height_off = sqrt(col_radius * col_radius + (mount_height * mount_height / 4) - (total_height * total_height / 4));
-
-	// angle = angle_from_chord(100, col_rad(col)) - mount_angle;
-	angle = (atan(total_height / 2 / height_off) - atan(mount_height / (2 * col_radius))) * 2;
-
-	angle_step = (angle) / (nrows - 1);
-
-	translate([(mount_width + extra_width) * col, 0, height_off]) {
-		color([0.5, 0.5, 0]) sphere(1);
-		#rotate([0, 90, 0]) circle(col_radius);
-		for (row = [0 : (nrows - 1)]) {
-			rotate([angle_step * (row - centerrow), 0, 0]) {
-				translate([0, 0, -col_radius - plate_thickness]) {
-					color([0, 0.5, 0]) sphere(1);
-					translate([0, 0, plate_thickness / 2]) cube([mount_width, mount_height, plate_thickness], center=true);
-				}
-			}
-		}
-	}
-}
 
 module single_plate() {
 	nub_width = 2.75;
@@ -154,30 +123,20 @@ module sa_cap() {
 module key_place(col, row) {
 	col_radius = col_rad(col);
 
-	// extra key angle =~ (mount_height / 2) / pi*R * 180
-	mount_angle = (mount_height / 2) / (PI * (col_radius - plate_thickness)) * 180;
+	mount_angle = angle_from_chord(mount_height, col_rad(col));
 
-	// chord length = ~105.9 = 2 * 87 * sin(180 / 12 * 5 / 2)
-	// angle = 180 / 12 * 5 / 2 = asin(~105.9 / (2 * 87))
-	// individual angle = 180 / 12 = asin(105.9 / (2 * R)) * 2 / 5
-	// angle_half = asin(105.9 / (2 * col_radius)); // From origin to end
-	// chord length = 120 = 2 * 87 * sin(180 / 12 * 5 / 2 + ~5.8)
-	// angle = 180 / 12 * 5 / 2 = asin(120 / (2 * 87))
-	// individual angle = 180 / 12 = asin(120 / (2 * R)) * 2 / 5
-	angle_half = asin(120 / (2 * (col_radius - plate_thickness))); // From origin to end
-	angle_step = (angle_half - mount_angle) * 2 / nrows;
+	height_off = sqrt(col_radius * col_radius + (mount_height * mount_height / 4) - (total_height * total_height / 4));
 
-	// height difference at end = R * (1 - cos((total angle) / 2))
-	height_off = (col_radius * (1 - cos(angle_half))) - reference_height;
+	angle = (atan(total_height / 2 / height_off) - atan(mount_height / (2 * col_radius))) * 2;
+
+	angle_step = (angle) / (nrows - 1);
 
 	translate([0, 0, keyboard_z_offset]) {
 		rotate([0, tenting_angle, 0]) {
-			translate([(mount_width + extra_width) * col, 0, -height_off]) {
-				translate([0, 0, col_radius]) {
-					rotate([angle_step * (row - centerrow), 0, 0]) {
-						translate([0, 0, -col_radius]) {
-							children();
-						}
+			translate([(mount_width + extra_width) * col, 0, height_off]) {
+				rotate([angle_step * (row - centerrow), 0, 0]) {
+					translate([0, 0, -col_radius - plate_thickness]) {
+						children();
 					}
 				}
 			}
@@ -640,4 +599,4 @@ module case() {
 	}
 }
 
-// case();
+case();
