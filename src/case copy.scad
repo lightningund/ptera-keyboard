@@ -393,11 +393,27 @@ module half_corner(row, dy) {
 module case_walls() {
 	union() {
 		// Back Wall
+		hull() {
+			for (col = [0 : ncols]) {
+				key_place(col, 0) {
+					web_post_bl();
+					web_post_br();
+				}
+			}
+		}
 		key_wall_brace(0, 0, [0, -1], ncols, 0, [0, -1]) {
 			web_post_bl();
 			web_post_br();
 		}
 		// Front Wall
+		hull() {
+			for (col = [0 : ncols]) {
+				key_place(col, nrows) {
+					web_post_tl();
+					web_post_tr();
+				}
+			}
+		}
 		key_wall_brace(0, nrows, [0, 1], ncols, nrows, [0, 1]) {
 			web_post_tl();
 			web_post_tr();
