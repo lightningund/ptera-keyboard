@@ -6,7 +6,7 @@ nrows = 5 - 1;
 ncols = 6 - 1;
 
 centerrow = nrows / 2; // controls front-back tilt
-tenting_angle = 13; // change this for precise tenting control
+tenting_angle = 8; // change this for precise tenting control
 
 // function col_rad(col) =
 // 	(col == 2) ? 83 :
@@ -15,7 +15,7 @@ function col_rad(col) =
 	(col == 2) ? 70 :
 	(col >= 4) ? 150 : 87;
 
-keyboard_z_offset = 55; // controls overall height
+keyboard_z_offset = 50; // controls overall height
 
 extra_width = 2.5; // extra space between the base of keys
 
