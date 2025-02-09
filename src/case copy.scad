@@ -275,55 +275,32 @@ module thumb_connectors() {
 // ;; Switch Holder ;;
 // ;;;;;;;;;;;;;;;;;;;
 
-// Note to self: try to make this work on the underside instead of above
+// Underside holes (coords are in multiples of 1.27mm):
+// (0, 0) - 0.157mm diam
+// (-3, 2) - 0.059mm diam
+// (2, 4) - 0.059mm diam
 
-free_height = 2.3; // How much room we have between the plate and the cap at max press
-switch_grab_height = 0.8; // The height of the switch part we have to "grab" on to
-switch_grab_depth = 0.85; // The depth we have to work with of "grabbable" switch before it just goes up into the main body
-switch_grab_total_width = 14.72 + switch_grab_depth * 2;
+// Total height of pins: 3.3mm
 
-module holder_place(col, row) {
-	key_place(col, row) translate([0, 0, plate_thickness + 0.2]) children();
-}
+$fn = 50;
 
-module switch_holder(col, row) {
-	holder_place(col, row) {
-		difference() {
-			translate([0, 0, free_height / 2]) cube([mount_width, mount_height, free_height], center=true);
-			translate([0, 0, switch_grab_height / 2]) {
-				cube([
-					switch_grab_total_width,
-					switch_grab_total_width,
-					switch_grab_height + small_num
-				], center=true);
-			}
-			translate([0, 0, free_height / 2]) {
-				cube([
-					switch_grab_total_width - switch_grab_depth * 2,
-					switch_grab_total_width - switch_grab_depth * 2,
-					free_height + small_num
-				], center=true);
+free_height = 0.8 / (5 / 6);
+
+module switch_holder() {
+	difference() {
+		translate([-7.5, -7.5, small_num]) {
+			minkowski() {
+				cylinder(d = 2, h = free_height / 3);
+				cube([15, 15, free_height / 2]);
 			}
 		}
+		cylinder(d = 0.18 * 25.4, h = free_height);
+		translate([2, 4] * 1.27) cylinder(d = 0.08 * 25.4, h = free_height);
+		translate([-3, 2] * 1.27) cylinder(d = 0.08 * 25.4, h = free_height);
 	}
 }
 
-module switch_holders(col) {
-	// Column connections
-	for (i = [0 : nrows]) {
-		switch_holder(col, i);
-	}
-	for (i = [0 : nrows - 1]) {
-		hull() {
-			holder_place(col, i) scale([1, 1, free_height / plate_thickness]) web_post_tr();
-			holder_place(col, i) scale([1, 1, free_height / plate_thickness]) web_post_tl();
-			holder_place(col, i + 1) scale([1, 1, free_height / plate_thickness]) web_post_br();
-			holder_place(col, i + 1) scale([1, 1, free_height / plate_thickness]) web_post_bl();
-		}
-	}
-}
-
-color([1, 1, 1]) switch_holders(2);
+color([1, 1, 1]) switch_holder();
 
 // ;;;;;;;;;;
 // ;; Case ;;
