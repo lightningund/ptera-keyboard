@@ -8,9 +8,6 @@ ncols = 6 - 1;
 centerrow = nrows / 2; // controls front-back tilt
 tenting_angle = 8; // change this for precise tenting control
 
-// function col_rad(col) =
-// 	(col == 2) ? 83 :
-// 	(col >= 4) ? 92 : 87;
 function col_rad(col) =
 	(col == 2) ? 70 :
 	(col >= 4) ? 150 : 87;
@@ -28,9 +25,9 @@ plate_thickness = 4;
 keyswitch_width = 14.4;
 keyswitch_height = 14.4;
 
-mount_space = 3;
-mount_width = keyswitch_width + mount_space;
-mount_height = keyswitch_height + mount_space;
+mount_space = 1.5;
+mount_width = keyswitch_width + mount_space * 2;
+mount_height = keyswitch_height + mount_space * 2;
 
 small_num = 1e-3;
 
@@ -43,17 +40,17 @@ module single_plate() {
 	module plate_half() {
 		union() {
 			// Top Wall
-			translate([0, (mount_space / 4) + (keyswitch_height / 2), plate_thickness / 2]) {
-				cube([mount_width, mount_space / 2, plate_thickness], center=true);
+			translate([0, (mount_space / 2) + (keyswitch_height / 2), plate_thickness / 2]) {
+				cube([mount_width, mount_space, plate_thickness], center=true);
 			}
 			// Left Wall
-			translate([(mount_space / 4) + (keyswitch_width / 2), 0, plate_thickness / 2]) {
-				cube([mount_space / 2, mount_height, plate_thickness], center=true);
+			translate([(mount_space / 2) + (keyswitch_width / 2), 0, plate_thickness / 2]) {
+				cube([mount_space, mount_height, plate_thickness], center=true);
 			}
 			// "Side Nub"
 			hull() {
-				translate([(mount_space / 4) + (keyswitch_width / 2), 0, plate_thickness / 2]) {
-					cube([mount_space / 2, nub_width, plate_thickness], center=true);
+				translate([(mount_space / 2) + (keyswitch_width / 2), 0, plate_thickness / 2]) {
+					cube([mount_space, nub_width, plate_thickness], center=true);
 				}
 				translate([keyswitch_width / 2, 0, nub_radius]) {
 					rotate([90, 0, 0]) {
@@ -123,8 +120,6 @@ module key_place(col, row) {
 // ;;;;;;;;;;;;;;;
 // ;; Main Keys ;;
 // ;;;;;;;;;;;;;;;
-
-function default_cond(col, row) = true;
 
 module main_keys() {
 	union() {
@@ -483,12 +478,6 @@ module aux_hole() {
 module case() {
 	difference() {
 		union() {
-			// main_keys();
-			// main_connectors();
-			// thumb_keys();
-			// thumb_connectors();
-			// case_walls();
-
 			color([0.2, 0.2, 0.8, 1]) main_keys();
 			// color([0.8, 0.8, 0.2, 1]) main_caps();
 			color([0.2, 0.8, 0.8, 1]) main_connectors();
