@@ -29,7 +29,7 @@ mount_space = 1.5;
 mount_width = keyswitch_width + mount_space * 2;
 mount_height = keyswitch_height + mount_space * 2;
 
-small_num = 1e-3;
+small_num = 1e-2;
 
 total_height = 100;
 
@@ -271,6 +271,60 @@ module thumb_connectors() {
 	}
 }
 
+// ;;;;;;;;;;;;;;;;;;;
+// ;; Switch Holder ;;
+// ;;;;;;;;;;;;;;;;;;;
+
+// Note to self: try to make this work on the underside instead of above
+
+free_height = 2.3; // How much room we have between the plate and the cap at max press
+switch_grab_height = 0.8; // The height of the switch part we have to "grab" on to
+switch_grab_depth = 0.85; // The depth we have to work with of "grabbable" switch before it just goes up into the main body
+switch_grab_total_width = 14.72 + switch_grab_depth * 2;
+
+module holder_place(col, row) {
+	key_place(col, row) translate([0, 0, plate_thickness + 0.2]) children();
+}
+
+module switch_holder(col, row) {
+	holder_place(col, row) {
+		difference() {
+			translate([0, 0, free_height / 2]) cube([mount_width, mount_height, free_height], center=true);
+			translate([0, 0, switch_grab_height / 2]) {
+				cube([
+					switch_grab_total_width,
+					switch_grab_total_width,
+					switch_grab_height + small_num
+				], center=true);
+			}
+			translate([0, 0, free_height / 2]) {
+				cube([
+					switch_grab_total_width - switch_grab_depth * 2,
+					switch_grab_total_width - switch_grab_depth * 2,
+					free_height + small_num
+				], center=true);
+			}
+		}
+	}
+}
+
+module switch_holders(col) {
+	// Column connections
+	for (i = [0 : nrows]) {
+		switch_holder(col, i);
+	}
+	for (i = [0 : nrows - 1]) {
+		hull() {
+			holder_place(col, i) scale([1, 1, free_height / plate_thickness]) web_post_tr();
+			holder_place(col, i) scale([1, 1, free_height / plate_thickness]) web_post_tl();
+			holder_place(col, i + 1) scale([1, 1, free_height / plate_thickness]) web_post_br();
+			holder_place(col, i + 1) scale([1, 1, free_height / plate_thickness]) web_post_bl();
+		}
+	}
+}
+
+color([1, 1, 1]) switch_holders(2);
+
 // ;;;;;;;;;;
 // ;; Case ;;
 // ;;;;;;;;;;
@@ -493,4 +547,4 @@ module case() {
 	}
 }
 
-case();
+// case();
