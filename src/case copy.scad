@@ -9,8 +9,8 @@ centerrow = nrows / 2; // controls front-back tilt
 tenting_angle = 8; // change this for precise tenting control
 
 function col_rad(col) =
-	(col == 2) ? 70 :
-	(col >= 4) ? 150 : 87;
+	(col == 2) ? 65 :
+	(col >= 4) ? 130 : 80;
 
 keyboard_z_offset = 50; // controls overall height
 
@@ -104,12 +104,14 @@ module key_place(col, row) {
 
 	angle_step = (angle) / (nrows);
 
-	translate([0, 0, keyboard_z_offset]) {
-		rotate([0, tenting_angle, 0]) {
-			translate([(mount_width + extra_width) * col, 0, height_off]) {
-				rotate([angle_step * (row - centerrow), 0, 0]) {
-					translate([0, 0, -col_radius - plate_thickness]) {
-						children();
+	rotate([10, 0, 0]) {
+		translate([0, 0, keyboard_z_offset]) {
+			rotate([0, tenting_angle, 0]) {
+				translate([(mount_width + extra_width) * col, 0, height_off]) {
+					rotate([angle_step * (row - centerrow), 0, 0]) {
+						translate([0, 0, -col_radius - plate_thickness]) {
+							children();
+						}
 					}
 				}
 			}
@@ -524,4 +526,4 @@ module case() {
 	}
 }
 
-// case();
+case();
