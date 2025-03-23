@@ -570,10 +570,10 @@ module case() {
 			// case_walls();
 
 			color([0.2, 0.2, 0.8, 1]) main_keys();
-			color([0.8, 0.8, 0.2, 1]) main_caps();
+			// color([0.8, 0.8, 0.2, 1]) main_caps();
 			color([0.2, 0.8, 0.8, 1]) main_connectors();
 			color([0.2, 0.8, 0.2, 1]) thumb_keys();
-			color([0.8, 0.8, 0.8, 1]) thumb_caps();
+			// color([0.8, 0.8, 0.8, 1]) thumb_caps();
 			color([0.8, 0.2, 0.2, 1]) thumb_connectors();
 			color([0.8, 0.2, 0.8, 1]) case_walls();
 		}
