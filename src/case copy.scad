@@ -7,6 +7,7 @@ ncols = 6 - 1;
 
 centerrow = nrows / 2; // controls front-back tilt
 tenting_angle = 8; // change this for precise tenting control
+forward_tilt = 6;
 
 function col_rad(col) =
 	(col == 2) ? 65 :
@@ -104,7 +105,7 @@ module key_place(col, row) {
 
 	angle_step = (angle) / (nrows);
 
-	rotate([10, 0, 0]) {
+	rotate([forward_tilt, 0, 0]) {
 		translate([0, 0, keyboard_z_offset]) {
 			rotate([0, tenting_angle, 0]) {
 				translate([(mount_width + extra_width) * col, 0, height_off]) {
@@ -494,9 +495,9 @@ module case_walls() {
 
 module aux_hole() {
 	ground_dist = 10;
-	wall_pos = 68; // TODO: actually calculate somehow
+	wall_pos = 64; // TODO: actually calculate somehow
 	thickness = 1;
-	hole = 4;
+	hole = 4.2;
 	inset = 6;
 	translate([0, wall_pos, ground_dist]) {
 		rotate([90, 0, 0]) {
