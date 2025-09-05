@@ -7,11 +7,18 @@ ncols = 6 - 1;
 
 centerrow = nrows / 2; // controls front-back tilt
 tenting_angle = 8; // change this for precise tenting control
-forward_tilt = 6;
+forward_tilt = 9;
+
+index_rad = 80;
+middle_rad = 65;
+ring_rad = 80;
+pinky_rad = 100;
 
 function col_rad(col) =
-	(col == 2) ? 65 :
-	(col >= 4) ? 130 : 80;
+	(col < 2) ? index_rad :
+	(col == 2) ? middle_rad :
+	(col == 3) ? ring_rad :
+	pinky_rad;
 
 keyboard_z_offset = 50; // controls overall height
 
@@ -303,7 +310,7 @@ module switch_holder() {
 	}
 }
 
-color([1, 1, 1]) switch_holder();
+// color([1, 1, 1]) switch_holder();
 
 // ;;;;;;;;;;
 // ;; Case ;;
