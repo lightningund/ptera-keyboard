@@ -2,33 +2,27 @@
 // ;; Shape parameters ;;
 // ;;;;;;;;;;;;;;;;;;;;;;
 
-nrows = 5;
-ncols = 6;
+nrows = 5 - 1;
+ncols = 6 - 1;
 
-col_curve = 180 / 12; // curvature of the columns
-centerrow = nrows - 3; // controls front-back tilt
-tenting_angle = 13; // change this for precise tenting control
+centerrow = nrows / 2; // controls front-back tilt
+tenting_angle = 8; // change this for precise tenting control
+forward_tilt = 6;
 
-function column_offset(column) =
-	(column == 2) ? [0, -2.82, -4.5] :
-	(column >= 4) ? [0, 8, 5.64] : [0, 0, 0];
+index_rad = 80;
+middle_rad = 65;
+ring_rad = 80;
+pinky_rad = 100;
 
-keyboard_z_offset = 35; // controls overall height
+function col_rad(col) =
+	(col < 2) ? index_rad :
+	(col == 2) ? middle_rad :
+	(col == 3) ? ring_rad :
+	pinky_rad;
+
+keyboard_z_offset = 50; // controls overall height
 
 extra_width = 2.5; // extra space between the base of keys
-extra_height = 1;
-
-wall_z_offset = -15; // length of the first downward-sloping part of the wall (negative)
-wall_xy_offset = 8; // offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
-wall_thickness = 2; // wall thickness parameter
-
-// ;;;;;;;;;;;;;;;;;;;;;;;
-// ;; General variables ;;
-// ;;;;;;;;;;;;;;;;;;;;;;;
-
-lastrow = nrows - 1;
-lastcol = ncols - 1;
-cornerrow = (ncols >= 4) ? (lastrow - 1) : lastrow;
 
 // ;;;;;;;;;;;;;;;;;
 // ;; Switch Hole ;;
@@ -39,11 +33,13 @@ plate_thickness = 4;
 keyswitch_width = 14.4;
 keyswitch_height = 14.4;
 
-mount_space = 3;
-mount_width = keyswitch_width + mount_space;
-mount_height = keyswitch_height + mount_space;
+mount_space = 1.5;
+mount_width = keyswitch_width + mount_space * 2;
+mount_height = keyswitch_height + mount_space * 2;
 
-small_num = 1e-3;
+small_num = 1e-2;
+
+total_height = 100;
 
 module single_plate() {
 	nub_width = 2.75;
@@ -52,17 +48,17 @@ module single_plate() {
 	module plate_half() {
 		union() {
 			// Top Wall
-			translate([0, (mount_space / 4) + (keyswitch_height / 2), plate_thickness / 2]) {
-				cube([mount_width, mount_space / 2, plate_thickness], center=true);
+			translate([0, (mount_space / 2) + (keyswitch_height / 2), plate_thickness / 2]) {
+				cube([mount_width, mount_space, plate_thickness], center=true);
 			}
 			// Left Wall
-			translate([(mount_space / 4) + (keyswitch_width / 2), 0, plate_thickness / 2]) {
-				cube([mount_space / 2, mount_height, plate_thickness], center=true);
+			translate([(mount_space / 2) + (keyswitch_width / 2), 0, plate_thickness / 2]) {
+				cube([mount_space, mount_height, plate_thickness], center=true);
 			}
 			// "Side Nub"
 			hull() {
-				translate([(mount_space / 4) + (keyswitch_width / 2), 0, plate_thickness / 2]) {
-					cube([mount_space / 2, nub_width, plate_thickness], center=true);
+				translate([(mount_space / 2) + (keyswitch_width / 2), 0, plate_thickness / 2]) {
+					cube([mount_space, nub_width, plate_thickness], center=true);
 				}
 				translate([keyswitch_width / 2, 0, nub_radius]) {
 					rotate([90, 0, 0]) {
@@ -108,18 +104,21 @@ module sa_cap() {
 
 // Puts the shape at the correct position and rotation for the specified key
 module key_place(col, row) {
-	cap_top_height = plate_thickness + sa_profile_key_height;
-	row_radius = (((mount_height + extra_height) / 2) / sin(col_curve / 2)) + cap_top_height;
+	col_radius = col_rad(col);
 
-	translate([0, 0, keyboard_z_offset]) {
-		rotate([0, tenting_angle, 0]) {
-			translate(column_offset(col)) {
-				translate([(mount_width + extra_width) * col, 0, 0]) {
-					translate([0, 0, row_radius]) {
-						rotate([col_curve * (row - centerrow), 0, 0]) {
-							translate([0, 0, -row_radius]) {
-								children();
-							}
+	height_off = sqrt(col_radius * col_radius + (mount_height * mount_height / 4) - (total_height * total_height / 4));
+
+	angle = (atan(total_height / 2 / height_off) - atan(mount_height / (2 * col_radius))) * 2;
+
+	angle_step = (angle) / (nrows);
+
+	rotate([forward_tilt, 0, 0]) {
+		translate([0, 0, keyboard_z_offset]) {
+			rotate([0, tenting_angle, 0]) {
+				translate([(mount_width + extra_width) * col, 0, height_off]) {
+					rotate([angle_step * (row - centerrow), 0, 0]) {
+						translate([0, 0, -col_radius - plate_thickness]) {
+							children();
 						}
 					}
 				}
@@ -128,27 +127,15 @@ module key_place(col, row) {
 	}
 }
 
-function valid_key(col, row) =
-	(col >= 0) &&
-	(row >= 0) &&
-	(col < ncols) &&
-	(row < nrows) &&
-	true;
-	// !((row == lastrow) && ((col == 4) || (col == 5)));
-
 // ;;;;;;;;;;;;;;;
 // ;; Main Keys ;;
 // ;;;;;;;;;;;;;;;
 
-function default_cond(col, row) = true;
-
 module main_keys() {
 	union() {
 		for (col = [0 : ncols], row = [0 : nrows]) {
-			if (valid_key(col, row)) {
-				key_place(col, row) {
-					single_plate();
-				}
+			key_place(col, row) {
+				single_plate();
 			}
 		}
 	}
@@ -157,10 +144,8 @@ module main_keys() {
 module main_caps() {
 	union() {
 		for (col = [0 : ncols], row = [0 : nrows]) {
-			if (valid_key(col, row)) {
-				key_place(col, row) {
-					sa_cap();
-				}
+			key_place(col, row) {
+				sa_cap();
 			}
 		}
 	}
@@ -184,7 +169,7 @@ module thumb_place(row) {
 
 module thumb_keys() {
 	union() {
-		for (row = [0 : nrows - 1]) {
+		for (row = [0 : nrows]) {
 			thumb_place(row) {
 				single_plate();
 			}
@@ -194,7 +179,7 @@ module thumb_keys() {
 
 module thumb_caps() {
 	union() {
-		for (row = [0 : nrows - 1]) {
+		for (row = [0 : nrows]) {
 			thumb_place(row) {
 				sa_cap();
 			}
@@ -232,7 +217,7 @@ module main_connectors() {
 	union() {
 		for (col = [0 : ncols], row = [0 : nrows]) {
 			// Row connections
-			if (valid_key(col + 1, row)) {
+			if (col < ncols) {
 				hull() {
 					key_place(col, row) web_post_tr();
 					key_place(col + 1, row) web_post_tl();
@@ -241,7 +226,7 @@ module main_connectors() {
 				}
 			}
 			// Column connections
-			if (valid_key(col, row + 1)) {
+			if (row < nrows) {
 				hull() {
 					key_place(col, row) web_post_tr();
 					key_place(col, row) web_post_tl();
@@ -250,7 +235,7 @@ module main_connectors() {
 				}
 			}
 			// Diagonal connections
-			if (valid_key(col + 1, row + 1)) {
+			if (col < ncols && row < nrows) {
 				hull() {
 					key_place(col, row) web_post_tr();
 					key_place(col + 1, row) web_post_tl();
@@ -262,38 +247,13 @@ module main_connectors() {
 	}
 }
 
-// (def connectors
-// 	(union
-// 		; Special connection because of the missing row
-// 		(if (>= ncols 4)
-// 			(union
-// 				(hull
-// 					(key-place 3 (- lastrow 1) web-post-br)
-// 					(key-place 4 (- lastrow 1) web-post-bl)
-// 					(key-place 3 lastrow web-post-tr)
-// 				)
-// 				(hull
-// 					(key-place 4 (- lastrow 1) web-post-bl)
-// 					(key-place 3 lastrow web-post-tr)
-// 					(key-place 3 lastrow web-post-br)
-// 				)
-// 				(hull
-// 					(key-place 4 (- lastrow 1) web-post-bl)
-// 					(key-place 4 (- lastrow 1) web-post-br)
-// 					(key-place 3 lastrow web-post-br)
-// 				)
-// 			) ()
-// 		)
-// 	)
-// )
-
 // ;;;;;;;;;;;;;;;;;;;;;;
 // ;; Thumb Connectors ;;
 // ;;;;;;;;;;;;;;;;;;;;;;
 
 module thumb_connectors() {
 	union() {
-		for (row = [0 : nrows - 2]) {
+		for (row = [0 : nrows - 1]) {
 			// Between thumb buttons
 			hull() {
 				thumb_place(row) web_post_tr();
@@ -309,7 +269,7 @@ module thumb_connectors() {
 				key_place(0, row + 1) web_post_bl();
 			}
 		}
-		for (row = [0 : nrows - 1]) {
+		for (row = [0 : nrows]) {
 			// Between thumb and main buttons
 			hull() {
 				thumb_place(row) web_post_tr();
@@ -321,13 +281,44 @@ module thumb_connectors() {
 	}
 }
 
+// ;;;;;;;;;;;;;;;;;;;
+// ;; Switch Holder ;;
+// ;;;;;;;;;;;;;;;;;;;
+
+// Underside holes (coords are in multiples of 1.27mm):
+// (0, 0) - 0.157mm diam
+// (-3, 2) - 0.059mm diam
+// (2, 4) - 0.059mm diam
+
+// Total height of pins: 3.3mm
+
+$fn = 50;
+
+free_height = 0.8 / (5 / 6);
+
+module switch_holder() {
+	difference() {
+		translate([-7.5, -7.5, small_num]) {
+			minkowski() {
+				cylinder(d = 2, h = free_height / 3);
+				cube([15, 15, free_height / 2]);
+			}
+		}
+		cylinder(d = 0.18 * 25.4, h = free_height);
+		translate([2, 4] * 1.27) cylinder(d = 0.08 * 25.4, h = free_height);
+		translate([-3, 2] * 1.27) cylinder(d = 0.08 * 25.4, h = free_height);
+	}
+}
+
+// color([1, 1, 1]) switch_holder();
+
 // ;;;;;;;;;;
 // ;; Case ;;
 // ;;;;;;;;;;
 
 module bottom(height) {
 	translate([0, 0, (height / 2) - 10]) {
-		linear_extrude(height=height) {
+		linear_extrude(height = height) {
 			projection() {
 				children();
 			}
@@ -341,6 +332,10 @@ module bottom_hull() {
 		bottom(small_num) children();
 	}
 }
+
+wall_z_offset = -15; // length of the first downward-sloping part of the wall (negative)
+wall_xy_offset = 8; // offset in the x and/or y direction for the first downward-sloping part of the wall (negative)
+wall_thickness = 2; // wall thickness parameter
 
 function wall_locate1(delta) = [delta[0] * wall_thickness, delta[1] * wall_thickness, -1];
 function wall_locate2(delta) = [delta[0] * wall_xy_offset, delta[1] * wall_xy_offset, wall_z_offset];
@@ -431,84 +426,55 @@ module half_corner(row, dy) {
 	}
 }
 
-// (defn half-corner [row dy post alt-post]
-// 	(union
-// 		(hull
-// 			(place-thumb row alt-post)
-// 			(key-place 0 row post)
-// 			(key-place 0 row (translate (wall-locate1 0 dy) post))
-// 		)
-// 		(hull
-// 			(place-thumb row alt-post)
-// 			(place-thumb row post)
-// 			(key-place 0 row (translate (wall-locate1 0 dy) post))
-// 			(key-place 0 row (translate (wall-locate2 0 dy) post))
-// 			(key-place 0 row (translate (wall-locate3 0 dy) post))
-// 		)
-// 		(hull
-// 			(place-thumb row post)
-// 			(place-thumb row (translate (wall-locate1 -1 0) post))
-// 			(key-place 0 row (translate (wall-locate2 0 dy) post))
-// 			(key-place 0 row (translate (wall-locate3 0 dy) post))
-// 		)
-// 		(bottom-hull
-// 			(place-thumb row post)
-// 			(place-thumb row (translate (wall-locate1 -1 0) post))
-// 			(key-place 0 row (translate (wall-locate2 0 dy) post))
-// 			(key-place 0 row (translate (wall-locate3 0 dy) post))
-// 		)
-// 	)
-// )
-
 module case_walls() {
 	union() {
 		// Back Wall
-		for (x = [0 : ncols - 1]) {
-			key_wall_brace(x, 0, [0, -1], x, 0, [0, -1]) {
-				web_post_bl();
-				web_post_br();
+		hull() {
+			for (col = [0 : ncols]) {
+				key_place(col, 0) {
+					web_post_bl();
+					web_post_br();
+				}
 			}
 		}
-		for (x = [1 : ncols - 1]) {
-			key_wall_brace(x, 0, [0, -1], x - 1, 0, [0, -1]) {
-				web_post_bl();
-				web_post_br();
-			}
+		key_wall_brace(0, 0, [0, -1], ncols, 0, [0, -1]) {
+			web_post_bl();
+			web_post_br();
 		}
 		// Front Wall
-		for (x = [0 : ncols - 1]) {
-			key_wall_brace(x, lastrow, [0, 1], x, lastrow, [0, 1]) {
-				web_post_tl();
-				web_post_tr();
+		hull() {
+			for (col = [0 : ncols]) {
+				key_place(col, nrows) {
+					web_post_tl();
+					web_post_tr();
+				}
 			}
 		}
-		for (x = [1 : ncols - 1]) {
-			key_wall_brace(x, lastrow, [0, 1], x - 1, lastrow, [0, 1]) {
-				web_post_tl();
-				web_post_tr();
-			}
+		key_wall_brace(0, nrows, [0, 1], ncols, nrows, [0, 1]) {
+			web_post_tl();
+			web_post_tr();
 		}
 		// Right Wall
-		for (y = [0 : nrows - 1]) {
-			key_wall_brace(lastcol, y, [1, 0], lastcol, y, [1, 0]) {
+		for (y = [0 : nrows]) {
+			key_wall_brace(ncols, y, [1, 0], ncols, y, [1, 0]) {
 				web_post_br();
 				web_post_tr();
 			}
 		}
-		for (y = [1 : nrows - 1]) {
-			key_wall_brace(lastcol, y, [1, 0], lastcol, y - 1, [1, 0]) {
+		for (y = [1 : nrows]) {
+			key_wall_brace(ncols, y, [1, 0], ncols, y - 1, [1, 0]) {
 				web_post_br();
 				web_post_tr();
 			}
 		}
 		// Left Wall
-		for (y = [0 : nrows - 1]) {
+		for (y = [0 : nrows]) {
 			half_key_wall_brace(y, [-1, 0], y, [-1, 0]) {
 				web_post_bl();
 				web_post_tl();
 			}
 		}
-		for (y = [1 : nrows - 1]) {
+		for (y = [1 : nrows]) {
 			half_key_wall_brace(y, [-1, 0], y - 1, [-1, 0]) {
 				web_post_bl();
 				web_post_tl();
@@ -519,56 +485,40 @@ module case_walls() {
 			web_post_bl();
 			web_post_br();
 		}
-		half_corner(lastrow, 1) {
+		half_corner(nrows, 1) {
 			web_post_tl();
 			web_post_tr();
 		}
-		key_wall_brace(lastcol, 0, [0, -1], lastcol, 0, [1, 0]) {
+		key_wall_brace(ncols, 0, [0, -1], ncols, 0, [1, 0]) {
 			web_post_br();
 			web_post_br();
 		}
-		key_wall_brace(lastcol, lastrow, [0, 1], lastcol, lastrow, [1, 0]) {
+		key_wall_brace(ncols, nrows, [0, 1], ncols, nrows, [1, 0]) {
 			web_post_tr();
 			web_post_tr();
 		}
 	}
 }
 
-// (def case-walls
-// 	(union
-// 		; Front wall
-// 		(for [x (range 0 (min 4 ncols))] (key-wall-brace
-// 			x lastrow 0 -1 web-post-bl
-// 			x lastrow 0 -1 web-post-br
-// 		))
-// 		(for [x (range 1 (min 4 ncols))] (key-wall-brace
-// 			x lastrow 0 -1 web-post-bl
-// 			(dec x) lastrow 0 -1 web-post-br
-// 		))
-// 		(key-wall-brace
-// 			5 cornerrow 0 -1 web-post-bl
-// 			5 cornerrow 0 -1 web-post-br
-// 		)
-// 		(key-wall-brace
-// 			5 cornerrow 0 -1 web-post-bl
-// 			4 cornerrow 0 -1 web-post-br
-// 		)
-// 		(key-wall-brace
-// 			3 lastrow 0 -1 web-post-br
-// 			4 cornerrow 0 -1 web-post-br
-// 		)
-// 	)
-// )
+module aux_hole() {
+	ground_dist = 10;
+	wall_pos = 64.5; // TODO: actually calculate somehow
+	thickness = 1;
+	hole = 4.2;
+	inset = 6;
+	translate([0, wall_pos, ground_dist]) {
+		rotate([90, 0, 0]) {
+			cylinder(r = hole, h = 20, $fn = 50);
+			translate([0, 0, thickness]) {
+				cylinder(r = inset, h = 20, $fn = 50);
+			}
+		}
+	}
+}
 
 module case() {
 	difference() {
 		union() {
-			// main_keys();
-			// main_connectors();
-			// thumb_keys();
-			// thumb_connectors();
-			// case_walls();
-
 			color([0.2, 0.2, 0.8, 1]) main_keys();
 			// color([0.8, 0.8, 0.2, 1]) main_caps();
 			color([0.2, 0.8, 0.8, 1]) main_connectors();
@@ -577,6 +527,7 @@ module case() {
 			color([0.8, 0.2, 0.2, 1]) thumb_connectors();
 			color([0.8, 0.2, 0.8, 1]) case_walls();
 		}
+		aux_hole();
 		translate([0, 0, -20]) {
 			cube([350, 350, 40], center=true);
 		}
