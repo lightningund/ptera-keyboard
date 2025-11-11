@@ -12,6 +12,6 @@ For tips on actually building this thing, please refer back to [the original pag
 - The scad file has a module called "switch_holder" which is designed to go under every single keyswitch. This keeps them from popping out when you pull of a cap
 
 ## License
-Copyright © 2024 lightningund
+Copyright © 2025 lightningund
 
 This entire project is distributed under the [GNU AFFERO GENERAL PUBLIC LICENSE Version 3](LICENSE). Have fun!
